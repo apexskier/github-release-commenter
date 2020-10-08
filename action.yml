@@ -1,5 +1,9 @@
 name: "Github Release Commenter"
 description: "Comment on PRs and Issues when a fix is released"
+inputs:
+  GITHUB_TOKEN:
+    description: "This should be a token with access to your repository scoped in as a secret, e.g. ${{ secrets.GITHUB_TOKEN }}"
+    required: true
 runs:
   using: "node12"
   main: "dst/index.js"

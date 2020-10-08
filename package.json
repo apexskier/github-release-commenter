@@ -8,7 +8,10 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "tsc",
+    "clean": "rimraf dst",
+    "build": "concurrently 'yarn:build:*'",
+    "build:ts": "tsc",
+    "build:deps": "yarn install --production --modules-folder ./dst/node_modules",
     "lint": "concurrently 'yarn:lint:*'",
     "lint:eslint": "eslint --ignore-path .checkignore \"**/*.{ts,js}\"",
     "lint:prettier": "prettier --ignore-path .checkignore --check \"**/*.{ts,js,json,md,yml}\"",

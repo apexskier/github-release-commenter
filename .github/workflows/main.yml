@@ -31,4 +31,6 @@ jobs:
         run: yarn build
 
       - name: Ensure clean
-        run: test -z "$(git status --porcelain)"
+        run: |
+          git status --porcelain
+          test -z "$(git status --porcelain)"

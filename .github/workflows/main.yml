@@ -28,4 +28,4 @@ jobs:
         run: yarn build
 
       - name: Ensure clean
-        run: git diff --exit-code
+        run: test -z "$(git status --porcelain)"

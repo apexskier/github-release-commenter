@@ -109,13 +109,15 @@ var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                                             return [4 /*yield*/, octokit_1.graphql(query)];
                                         case 1:
                                             response = _b.sent();
-                                            core.info(JSON.stringify({ response: response }, null, 2));
+                                            // core.info(JSON.stringify({ response }, null, 2));
                                             if (!response.resource) {
                                                 return [2 /*return*/];
                                             }
                                             html = response.resource.messageHeadlineHTML +
                                                 " " +
                                                 response.resource.messageBodyHTML;
+                                            core.info(html);
+                                            core.info(closesMatcher.toString());
                                             for (match in html.matchAll(closesMatcher)) {
                                                 _a = __read(match, 2), num = _a[1];
                                                 linkedIssuesPrs_2.add(num);

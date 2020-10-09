@@ -157,7 +157,7 @@ const closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
       const request = {
         ...github.context.repo,
         issue_number: parseInt(issueNumber),
-        body: `Released in [${releaseLabel}](${currentRelease.html_url})`,
+        body: `Included in release [${releaseLabel}](${currentRelease.html_url})`,
       };
       core.info(JSON.stringify(request, null, 2));
       commentRequests.push(octokit.issues.createComment(request));

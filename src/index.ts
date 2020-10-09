@@ -104,6 +104,7 @@ function* matchAll(re: RegExp, s: string) {
               };
             };
           } = await octokit.graphql(query);
+          core.info(JSON.stringify(response, null, 2));
           if (!response.data.resource) {
             return;
           }

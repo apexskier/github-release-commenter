@@ -101,14 +101,15 @@ var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                     linkedIssuesPrs_2 = new Set();
                     return [4 /*yield*/, Promise.all(commits.map(function (commit) {
                             return (function () { return __awaiter(_this, void 0, void 0, function () {
-                                var query, response, html, match, _a, num;
-                                return __generator(this, function (_b) {
-                                    switch (_b.label) {
+                                var query, response, html, _a, _b, match, _c, num;
+                                var e_2, _d;
+                                return __generator(this, function (_e) {
+                                    switch (_e.label) {
                                         case 0:
                                             query = "\n            {\n              resource(url: \"" + payload_1.repository.html_url + "/commit/" + commit.sha + "\") {\n                ... on Commit {\n                  messageHeadlineHTML\n                  messageBodyHTML\n                  associatedPullRequests(first: 10) {\n                    edges {\n                      node {\n                        title\n                        number\n                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {\n                          nodes {\n                            ... on ConnectedEvent {\n                              id\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                            ... on DisconnectedEvent {\n                              id\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          ";
                                             return [4 /*yield*/, octokit_1.graphql(query)];
                                         case 1:
-                                            response = _b.sent();
+                                            response = _e.sent();
                                             // core.info(JSON.stringify({ response }, null, 2));
                                             if (!response.resource) {
                                                 return [2 /*return*/];
@@ -118,11 +119,21 @@ var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                                                 response.resource.messageBodyHTML;
                                             core.info(html);
                                             core.info(closesMatcher.toString());
-                                            for (match in html.matchAll(closesMatcher)) {
-                                                _a = __read(match, 2), num = _a[1];
-                                                core.info(JSON.stringify(match, null, 2));
-                                                core.info(num);
-                                                linkedIssuesPrs_2.add(num);
+                                            try {
+                                                for (_a = __values(html.matchAll(closesMatcher)), _b = _a.next(); !_b.done; _b = _a.next()) {
+                                                    match = _b.value;
+                                                    _c = __read(match, 2), num = _c[1];
+                                                    core.info(JSON.stringify(match, null, 2));
+                                                    core.info(num);
+                                                    linkedIssuesPrs_2.add(num);
+                                                }
+                                            }
+                                            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                                            finally {
+                                                try {
+                                                    if (_b && !_b.done && (_d = _a.return)) _d.call(_a);
+                                                }
+                                                finally { if (e_2) throw e_2.error; }
                                             }
                                             return [2 /*return*/];
                                     }

@@ -18,6 +18,7 @@ jobs:
           bump: prerelease
           prefix: v
           preid: alpha
+          dry_run: true
 
       - name: Release
         uses: actions/create-release@v1

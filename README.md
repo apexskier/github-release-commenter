@@ -20,3 +20,10 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+## Known limitations
+
+These are some known limitations of this action. I'd like to try to address them in the future.
+
+- Non-linear releases aren't supported. For example, releasing a patch to a prior major release after a new major release has been bumped.
+- The first release for a project will be ignored. This is intentional, as the use case is unlikely. Most projects will either have several alphas that don't need release comments, or won't use issues/PRs for the first commit.

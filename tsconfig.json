@@ -9,5 +9,6 @@
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
     "outDir": "./dst"
-  }
+  },
+  "exclude": ["src/**/*.test.ts"]
 }

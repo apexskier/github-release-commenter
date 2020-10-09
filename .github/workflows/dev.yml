@@ -24,4 +24,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.tag.outputs.version_tag }}
-          prerelease: false
+          release_name: ${{ steps.tag.outputs.version_tag }}
+          prerelease: true

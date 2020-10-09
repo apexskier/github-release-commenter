@@ -18,6 +18,16 @@ const closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
       per_page: 2,
     });
 
+    if (releases.length < 2) {
+      if (!releases.length) {
+        core.error("no releases found");
+        return;
+      }
+
+      core.info("first release");
+      return;
+    }
+
     const [currentRelease, priorRelease] = releases;
 
     const {

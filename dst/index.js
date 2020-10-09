@@ -97,7 +97,7 @@ function matchAll(re, s) {
 }
 (function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var payload_1, githubToken, octokit_1, releases, _a, currentRelease, priorRelease, commits, linkedIssuesPrs_2, commentRequests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, error_1;
+        var payload_1, githubToken, octokit_1, releases, _a, currentRelease, priorRelease, commits, linkedIssuesPrs_2, commentRequests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, request, error_1;
         var e_1, _b;
         var _this = this;
         return __generator(this, function (_c) {
@@ -124,7 +124,6 @@ function matchAll(re, s) {
                                     switch (_b.label) {
                                         case 0:
                                             query = "\n            {\n              resource(url: \"" + payload_1.repository.html_url + "/commit/" + commit.sha + "\") {\n                ... on Commit {\n                  messageHeadlineHTML\n                  messageBodyHTML\n                  associatedPullRequests(first: 10) {\n                    edges {\n                      node {\n                        title\n                        number\n                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {\n                          nodes {\n                            ... on ConnectedEvent {\n                              id\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                            ... on DisconnectedEvent {\n                              id\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          ";
-                                            core.info(query);
                                             return [4 /*yield*/, octokit_1.graphql(query)];
                                         case 1:
                                             response = _b.sent();
@@ -150,7 +149,9 @@ function matchAll(re, s) {
                     try {
                         for (linkedIssuesPrs_1 = __values(linkedIssuesPrs_2), linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next(); !linkedIssuesPrs_1_1.done; linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next()) {
                             issueNumber = linkedIssuesPrs_1_1.value;
-                            commentRequests.push(octokit_1.issues.createComment(__assign(__assign({}, github.context.repo), { issue_number: parseInt(issueNumber), body: "Released in [" + currentRelease.name + "](" + currentRelease.html_url + ")" })));
+                            request = __assign(__assign({}, github.context.repo), { issue_number: parseInt(issueNumber), body: "Released in [" + currentRelease.name + "](" + currentRelease.html_url + ")" });
+                            core.info(JSON.stringify(request, null, 2));
+                            commentRequests.push(octokit_1.issues.createComment(request));
                         }
                     }
                     catch (e_1_1) { e_1 = { error: e_1_1 }; }

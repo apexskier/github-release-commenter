@@ -84,7 +84,6 @@ function* matchAll(re: RegExp, s: string) {
               }
             }
           `;
-          core.info(query);
           const response: {
             resource: null | {
               messageHeadlineHTML: string;
@@ -120,13 +119,13 @@ function* matchAll(re: RegExp, s: string) {
 
     const commentRequests: Array<Promise<unknown>> = [];
     for (const issueNumber of linkedIssuesPrs) {
-      commentRequests.push(
-        octokit.issues.createComment({
-          ...github.context.repo,
-          issue_number: parseInt(issueNumber),
-          body: `Released in [${currentRelease.name}](${currentRelease.html_url})`,
-        })
-      );
+      const request = {
+        ...github.context.repo,
+        issue_number: parseInt(issueNumber),
+        body: `Released in [${currentRelease.name}](${currentRelease.html_url})`,
+      };
+      core.info(JSON.stringify(request, null, 2));
+      commentRequests.push(octokit.issues.createComment(request));
     }
     await Promise.all(commentRequests);
   } catch (error) {

@@ -86,32 +86,30 @@ function* matchAll(re: RegExp, s: string) {
           `;
           core.info(query);
           const response: {
-            data: {
-              resource: null | {
-                messageHeadlineHTML: string;
-                messageBodyHTML: string;
-                associatedPullRequests: {
-                  edges: Array<{
-                    node: {
-                      title: string;
-                      number: number;
-                      timelineItems: {
-                        nodes: Array<unknown>;
-                      };
+            resource: null | {
+              messageHeadlineHTML: string;
+              messageBodyHTML: string;
+              associatedPullRequests: {
+                edges: Array<{
+                  node: {
+                    title: string;
+                    number: number;
+                    timelineItems: {
+                      nodes: Array<unknown>;
                     };
-                  }>;
-                };
+                  };
+                }>;
               };
             };
           } = await octokit.graphql(query);
           core.info(JSON.stringify({ response }, null, 2));
-          if (!response.data.resource) {
+          if (!response.resource) {
             return;
           }
           const html =
-            response.data.resource.messageHeadlineHTML +
+            response.resource.messageHeadlineHTML +
             " " +
-            response.data.resource.messageBodyHTML;
+            response.resource.messageBodyHTML;
           for (const match in matchAll(closesMatcher, html)) {
             const [, num] = match;
             linkedIssuesPrs.add(num);

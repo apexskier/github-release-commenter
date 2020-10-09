@@ -129,12 +129,12 @@ function matchAll(re, s) {
                                         case 1:
                                             response = _b.sent();
                                             core.info(JSON.stringify({ response: response }, null, 2));
-                                            if (!response.data.resource) {
+                                            if (!response.resource) {
                                                 return [2 /*return*/];
                                             }
-                                            html = response.data.resource.messageHeadlineHTML +
+                                            html = response.resource.messageHeadlineHTML +
                                                 " " +
-                                                response.data.resource.messageBodyHTML;
+                                                response.resource.messageBodyHTML;
                                             for (match in matchAll(closesMatcher, html)) {
                                                 _a = __read(match, 2), num = _a[1];
                                                 linkedIssuesPrs_2.add(num);

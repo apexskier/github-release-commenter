@@ -165,6 +165,7 @@ function matchAll(re, s) {
                     return [3 /*break*/, 6];
                 case 5:
                     error_1 = _c.sent();
+                    core.error(error_1);
                     core.setFailed(error_1.message);
                     return [3 /*break*/, 6];
                 case 6: return [2 /*return*/];

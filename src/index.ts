@@ -131,6 +131,7 @@ function* matchAll(re: RegExp, s: string) {
     }
     await Promise.all(commentRequests);
   } catch (error) {
+    core.error(error);
     core.setFailed(error.message);
   }
 })();

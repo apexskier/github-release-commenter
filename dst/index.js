@@ -97,13 +97,13 @@ function matchAll(re, s) {
 }
 (function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var payload_1, githubToken, octokit_1, releases, _a, currentRelease, priorRelease, commits, linkedIssuesPrs_2, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, error_1;
+        var payload_1, githubToken, octokit_1, releases, _a, currentRelease, priorRelease, commits, linkedIssuesPrs_2, commentRequests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, error_1;
         var e_1, _b;
         var _this = this;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
-                    _c.trys.push([0, 4, , 5]);
+                    _c.trys.push([0, 5, , 6]);
                     payload_1 = github.context
                         .payload;
                     githubToken = core.getInput("GITHUB_TOKEN");
@@ -117,11 +117,14 @@ function matchAll(re, s) {
                     commits = (_c.sent()).data.commits;
                     linkedIssuesPrs_2 = new Set();
                     return [4 /*yield*/, Promise.all(commits.map(function (commit) {
-                            (function () { return __awaiter(_this, void 0, void 0, function () {
-                                var response, body, match, _a, num;
+                            return (function () { return __awaiter(_this, void 0, void 0, function () {
+                                var query, response, body, match, _a, num;
                                 return __generator(this, function (_b) {
                                     switch (_b.label) {
-                                        case 0: return [4 /*yield*/, octokit_1.graphql("\n          {\n            resource(url: \"" + payload_1.repository.html_url + "/commit/" + commit.sha + "\") {\n              ... on Commit {\n                messageBodyHTML\n                associatedPullRequests(first: 10) {\n                  edges {\n                    node {\n                      title\n                      number\n                      timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {\n                        nodes {\n                          ... on ConnectedEvent {\n                            id\n                            subject {\n                              ... on Issue {\n                                number\n                              }\n                            }\n                          }\n                          ... on DisconnectedEvent {\n                            id\n                            subject {\n                              ... on Issue {\n                                number\n                              }\n                            }\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        ")];
+                                        case 0:
+                                            query = "\n            {\n              resource(url: \"" + payload_1.repository.html_url + "/commit/" + commit.sha + "\") {\n                ... on Commit {\n                  messageBodyHTML\n                  associatedPullRequests(first: 10) {\n                    edges {\n                      node {\n                        title\n                        number\n                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {\n                          nodes {\n                            ... on ConnectedEvent {\n                              id\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                            ... on DisconnectedEvent {\n                              id\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          ";
+                                            console.log(query);
+                                            return [4 /*yield*/, octokit_1.graphql(query)];
                                         case 1:
                                             response = _b.sent();
                                             body = response.data.resource.messageBodyHTML;
@@ -136,10 +139,11 @@ function matchAll(re, s) {
                         }))];
                 case 3:
                     _c.sent();
+                    commentRequests = [];
                     try {
                         for (linkedIssuesPrs_1 = __values(linkedIssuesPrs_2), linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next(); !linkedIssuesPrs_1_1.done; linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next()) {
                             issueNumber = linkedIssuesPrs_1_1.value;
-                            octokit_1.issues.createComment(__assign(__assign({}, github.context.repo), { issue_number: parseInt(issueNumber), body: "Released in [" + currentRelease.name + "](" + currentRelease.html_url + ")" }));
+                            commentRequests.push(octokit_1.issues.createComment(__assign(__assign({}, github.context.repo), { issue_number: parseInt(issueNumber), body: "Released in [" + currentRelease.name + "](" + currentRelease.html_url + ")" })));
                         }
                     }
                     catch (e_1_1) { e_1 = { error: e_1_1 }; }
@@ -149,12 +153,15 @@ function matchAll(re, s) {
                         }
                         finally { if (e_1) throw e_1.error; }
                     }
-                    return [3 /*break*/, 5];
+                    return [4 /*yield*/, Promise.all(commentRequests)];
                 case 4:
+                    _c.sent();
+                    return [3 /*break*/, 6];
+                case 5:
                     error_1 = _c.sent();
                     core.setFailed(error_1.message);
-                    return [3 /*break*/, 5];
-                case 5: return [2 /*return*/];
+                    return [3 /*break*/, 6];
+                case 6: return [2 /*return*/];
             }
         });
     });

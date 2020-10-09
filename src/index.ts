@@ -42,8 +42,46 @@ function* matchAll(re: RegExp, s: string) {
     const linkedIssuesPrs = new Set<string>();
 
     await Promise.all(
-      commits.map((commit) => {
+      commits.map((commit) =>
         (async () => {
+          const query = `
+            {
+              resource(url: "${payload.repository.html_url}/commit/${commit.sha}") {
+                ... on Commit {
+                  messageBodyHTML
+                  associatedPullRequests(first: 10) {
+                    edges {
+                      node {
+                        title
+                        number
+                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {
+                          nodes {
+                            ... on ConnectedEvent {
+                              id
+                              subject {
+                                ... on Issue {
+                                  number
+                                }
+                              }
+                            }
+                            ... on DisconnectedEvent {
+                              id
+                              subject {
+                                ... on Issue {
+                                  number
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          `;
+          console.log(query);
           const response: {
             data: {
               resource: {
@@ -61,59 +99,27 @@ function* matchAll(re: RegExp, s: string) {
                 };
               };
             };
-          } = await octokit.graphql(`
-          {
-            resource(url: "${payload.repository.html_url}/commit/${commit.sha}") {
-              ... on Commit {
-                messageBodyHTML
-                associatedPullRequests(first: 10) {
-                  edges {
-                    node {
-                      title
-                      number
-                      timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {
-                        nodes {
-                          ... on ConnectedEvent {
-                            id
-                            subject {
-                              ... on Issue {
-                                number
-                              }
-                            }
-                          }
-                          ... on DisconnectedEvent {
-                            id
-                            subject {
-                              ... on Issue {
-                                number
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `);
+          } = await octokit.graphql(query);
           const body = response.data.resource.messageBodyHTML;
           for (const match in matchAll(closesMatcher, body)) {
             const [, num] = match;
             linkedIssuesPrs.add(num);
           }
-        })();
-      })
+        })()
+      )
     );
 
+    const commentRequests: Array<Promise<unknown>> = [];
     for (const issueNumber of linkedIssuesPrs) {
-      octokit.issues.createComment({
-        ...github.context.repo,
-        issue_number: parseInt(issueNumber),
-        body: `Released in [${currentRelease.name}](${currentRelease.html_url})`,
-      });
+      commentRequests.push(
+        octokit.issues.createComment({
+          ...github.context.repo,
+          issue_number: parseInt(issueNumber),
+          body: `Released in [${currentRelease.name}](${currentRelease.html_url})`,
+        })
+      );
     }
+    await Promise.all(commentRequests);
   } catch (error) {
     core.setFailed(error.message);
   }

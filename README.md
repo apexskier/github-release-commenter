@@ -11,12 +11,12 @@ Use this action in a workflow [triggered by a release](https://docs.github.com/e
 ```yml
 on:
   release:
-	types: [published]
+    types: [published]
 
 jobs:
   release:
-	steps:
-	  - uses: apexskier/github-release-commenter@latest
-		with:
-		  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: apexskier/github-release-commenter@latest
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```

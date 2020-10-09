@@ -120,6 +120,8 @@ var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                                             core.info(closesMatcher.toString());
                                             for (match in html.matchAll(closesMatcher)) {
                                                 _a = __read(match, 2), num = _a[1];
+                                                core.info(JSON.stringify(match, null, 2));
+                                                core.info(num);
                                                 linkedIssuesPrs_2.add(num);
                                             }
                                             return [2 /*return*/];

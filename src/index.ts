@@ -102,6 +102,8 @@ const closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
           core.info(closesMatcher.toString());
           for (const match in html.matchAll(closesMatcher)) {
             const [, num] = match;
+            core.info(JSON.stringify(match, null, 2));
+            core.info(num);
             linkedIssuesPrs.add(num);
           }
         })()

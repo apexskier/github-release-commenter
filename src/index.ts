@@ -57,7 +57,7 @@ const closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                     }
                     edges {
                       node {
-                        title
+                        bodyHTML
                         number
                         timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {
                           pageInfo {
@@ -99,7 +99,7 @@ const closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                 pageInfo: { hasNextPage: boolean };
                 edges: Array<{
                   node: {
-                    title: string;
+                    bodyHTML: string;
                     number: number;
                     timelineItems: {
                       pageInfo: { hasNextPage: boolean };
@@ -123,10 +123,13 @@ const closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
 
           core.info(JSON.stringify(response.resource, null, 2));
 
-          const html =
-            response.resource.messageHeadlineHTML +
-            " " +
-            response.resource.messageBodyHTML;
+          const html = [
+            response.resource.messageHeadlineHTML,
+            response.resource.messageBodyHTML,
+            ...response.resource.associatedPullRequests.edges.map(
+              (pr) => pr.node.bodyHTML
+            ),
+          ].join(" ");
           for (const match of html.matchAll(closesMatcher)) {
             const [, num] = match;
             linkedIssuesPrs.add(num);

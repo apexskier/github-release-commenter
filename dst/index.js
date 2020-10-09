@@ -62,6 +62,10 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
+var __spread = (this && this.__spread) || function () {
+    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
+    return ar;
+};
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
     if (m) return m.call(o);
@@ -114,7 +118,7 @@ var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                                 return __generator(this, function (_g) {
                                     switch (_g.label) {
                                         case 0:
-                                            query = "\n            {\n              resource(url: \"" + payload_1.repository.html_url + "/commit/" + commit.sha + "\") {\n                ... on Commit {\n                  messageHeadlineHTML\n                  messageBodyHTML\n                  associatedPullRequests(first: 10) {\n                    pageInfo {\n                      hasNextPage\n                    }\n                    edges {\n                      node {\n                        title\n                        number\n                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {\n                          pageInfo {\n                            hasNextPage\n                          }\n                          nodes {\n                            ... on ConnectedEvent {\n                              __typename\n                              isCrossRepository\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                            ... on DisconnectedEvent {\n                              __typename\n                              isCrossRepository\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          ";
+                                            query = "\n            {\n              resource(url: \"" + payload_1.repository.html_url + "/commit/" + commit.sha + "\") {\n                ... on Commit {\n                  messageHeadlineHTML\n                  messageBodyHTML\n                  associatedPullRequests(first: 10) {\n                    pageInfo {\n                      hasNextPage\n                    }\n                    edges {\n                      node {\n                        bodyHTML\n                        number\n                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {\n                          pageInfo {\n                            hasNextPage\n                          }\n                          nodes {\n                            ... on ConnectedEvent {\n                              __typename\n                              isCrossRepository\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                            ... on DisconnectedEvent {\n                              __typename\n                              isCrossRepository\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          ";
                                             return [4 /*yield*/, octokit_1.graphql(query)];
                                         case 1:
                                             response = _g.sent();
@@ -122,9 +126,10 @@ var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                                                 return [2 /*return*/];
                                             }
                                             core.info(JSON.stringify(response.resource, null, 2));
-                                            html = response.resource.messageHeadlineHTML +
-                                                " " +
-                                                response.resource.messageBodyHTML;
+                                            html = __spread([
+                                                response.resource.messageHeadlineHTML,
+                                                response.resource.messageBodyHTML
+                                            ], response.resource.associatedPullRequests.edges.map(function (pr) { return pr.node.bodyHTML; })).join(" ");
                                             try {
                                                 for (_a = __values(html.matchAll(closesMatcher)), _b = _a.next(); !_b.done; _b = _a.next()) {
                                                     match = _b.value;

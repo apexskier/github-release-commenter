@@ -1,6 +1,6 @@
 {
   "name": "github-release-commenter",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Github action to automatically comment on PRs and Issues when a fix is released.",
   "main": "dst/index.js",
   "repository": "git@github.com:apexskier/github-release-commenter.git",

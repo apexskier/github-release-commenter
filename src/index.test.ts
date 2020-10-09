@@ -53,6 +53,8 @@ test("main test", async () => {
             edges: [
               {
                 node: {
+                  bodyHTML:
+                    '<span class="issue-keyword tooltipped tooltipped-se" aria-label="This commit closes issue #4.">Closes</span> <span class="issue-keyword tooltipped tooltipped-se" aria-label="This commit closes issue #5.">Closes</span>',
                   timelineItems: {
                     pageInfo: { hasNextPage: false },
                     nodes: [

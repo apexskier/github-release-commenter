@@ -27,3 +27,4 @@ jobs:
           tag_name: ${{ steps.tag.outputs.version_tag }}
           release_name: ${{ steps.tag.outputs.version_tag }}
           prerelease: true
+          draft: false

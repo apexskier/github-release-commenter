@@ -76,7 +76,7 @@ var __values = (this && this.__values) || function(o) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var core = require("@actions/core");
 var github = require("@actions/github");
-var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
+var closesMatcher = /aria-label=\\"This commit closes issue #(\d+)\.\\"/g;
 function matchAll(re, s) {
     var m;
     return __generator(this, function (_a) {
@@ -97,7 +97,7 @@ function matchAll(re, s) {
 }
 (function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var payload_1, githubToken, octokit_1, releases, _a, currentRelease, priorRelease, commits, linkedIssuesPrs_2, commentRequests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, request, error_1;
+        var payload_1, githubToken, octokit_1, releases, _a, currentRelease, priorRelease, commits, linkedIssuesPrs_2, commentRequests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, releaseLabel, request, error_1;
         var e_1, _b;
         var _this = this;
         return __generator(this, function (_c) {
@@ -149,7 +149,8 @@ function matchAll(re, s) {
                     try {
                         for (linkedIssuesPrs_1 = __values(linkedIssuesPrs_2), linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next(); !linkedIssuesPrs_1_1.done; linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next()) {
                             issueNumber = linkedIssuesPrs_1_1.value;
-                            request = __assign(__assign({}, github.context.repo), { issue_number: parseInt(issueNumber), body: "Released in [" + currentRelease.name + "](" + currentRelease.html_url + ")" });
+                            releaseLabel = currentRelease.name || currentRelease.tag_name;
+                            request = __assign(__assign({}, github.context.repo), { issue_number: parseInt(issueNumber), body: "Released in [" + releaseLabel + "](" + currentRelease.html_url + ")" });
                             core.info(JSON.stringify(request, null, 2));
                             commentRequests.push(octokit_1.issues.createComment(request));
                         }

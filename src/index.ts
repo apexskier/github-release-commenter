@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import type * as Webhooks from "@octokit/webhooks";
 
-const closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
+const closesMatcher = /aria-label=\\"This commit closes issue #(\d+)\.\\"/g;
 
 function* matchAll(re: RegExp, s: string) {
   let m;
@@ -119,10 +119,11 @@ function* matchAll(re: RegExp, s: string) {
 
     const commentRequests: Array<Promise<unknown>> = [];
     for (const issueNumber of linkedIssuesPrs) {
+      const releaseLabel = currentRelease.name || currentRelease.tag_name;
       const request = {
         ...github.context.repo,
         issue_number: parseInt(issueNumber),
-        body: `Released in [${currentRelease.name}](${currentRelease.html_url})`,
+        body: `Released in [${releaseLabel}](${currentRelease.html_url})`,
       };
       core.info(JSON.stringify(request, null, 2));
       commentRequests.push(octokit.issues.createComment(request));

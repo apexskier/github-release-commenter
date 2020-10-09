@@ -101,18 +101,19 @@ var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                     linkedIssuesPrs_2 = new Set();
                     return [4 /*yield*/, Promise.all(commits.map(function (commit) {
                             return (function () { return __awaiter(_this, void 0, void 0, function () {
-                                var query, response, html, _a, _b, match, _c, num;
-                                var e_2, _d;
-                                return __generator(this, function (_e) {
-                                    switch (_e.label) {
+                                var query, response, html, _a, _b, match, _c, num, seen, associatedPRs, associatedPRs_1, associatedPRs_1_1, associatedPR, links, links_1, links_1_1, link;
+                                var e_2, _d, e_3, _e, e_4, _f;
+                                return __generator(this, function (_g) {
+                                    switch (_g.label) {
                                         case 0:
-                                            query = "\n            {\n              resource(url: \"" + payload_1.repository.html_url + "/commit/" + commit.sha + "\") {\n                ... on Commit {\n                  messageHeadlineHTML\n                  messageBodyHTML\n                  associatedPullRequests(first: 10) {\n                    edges {\n                      node {\n                        title\n                        number\n                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {\n                          nodes {\n                            ... on ConnectedEvent {\n                              id\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                            ... on DisconnectedEvent {\n                              id\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          ";
+                                            query = "\n            {\n              resource(url: \"" + payload_1.repository.html_url + "/commit/" + commit.sha + "\") {\n                ... on Commit {\n                  messageHeadlineHTML\n                  messageBodyHTML\n                  associatedPullRequests(first: 10) {\n                    pageInfo {\n                      hasNextPage\n                    }\n                    edges {\n                      node {\n                        title\n                        number\n                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {\n                          pageInfo {\n                            hasNextPage\n                          }\n                          nodes {\n                            ... on ConnectedEvent {\n                              __typename\n                              isCrossRepository\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                            ... on DisconnectedEvent {\n                              __typename\n                              isCrossRepository\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          ";
                                             return [4 /*yield*/, octokit_1.graphql(query)];
                                         case 1:
-                                            response = _e.sent();
+                                            response = _g.sent();
                                             if (!response.resource) {
                                                 return [2 /*return*/];
                                             }
+                                            core.info(JSON.stringify(response.resource, null, 2));
                                             html = response.resource.messageHeadlineHTML +
                                                 " " +
                                                 response.resource.messageBodyHTML;
@@ -129,6 +130,48 @@ var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                                                     if (_b && !_b.done && (_d = _a.return)) _d.call(_a);
                                                 }
                                                 finally { if (e_2) throw e_2.error; }
+                                            }
+                                            if (response.resource.associatedPullRequests.pageInfo.hasNextPage) {
+                                                core.warning("Too many PRs associated with " + commit.sha);
+                                            }
+                                            seen = new Set();
+                                            associatedPRs = response.resource.associatedPullRequests.edges;
+                                            try {
+                                                for (associatedPRs_1 = __values(associatedPRs), associatedPRs_1_1 = associatedPRs_1.next(); !associatedPRs_1_1.done; associatedPRs_1_1 = associatedPRs_1.next()) {
+                                                    associatedPR = associatedPRs_1_1.value;
+                                                    if (associatedPR.node.timelineItems.pageInfo.hasNextPage) {
+                                                        core.warning("Too many links for #" + associatedPR.node.number);
+                                                    }
+                                                    links = associatedPR.node.timelineItems.nodes
+                                                        .filter(function (node) { return !node.isCrossRepository; })
+                                                        .reverse();
+                                                    try {
+                                                        for (links_1 = (e_4 = void 0, __values(links)), links_1_1 = links_1.next(); !links_1_1.done; links_1_1 = links_1.next()) {
+                                                            link = links_1_1.value;
+                                                            if (seen.has(link.subject.number)) {
+                                                                continue;
+                                                            }
+                                                            if (link.__typename == "ConnectedEvent") {
+                                                                linkedIssuesPrs_2.add("" + link.subject.number);
+                                                            }
+                                                            seen.add(link.subject.number);
+                                                        }
+                                                    }
+                                                    catch (e_4_1) { e_4 = { error: e_4_1 }; }
+                                                    finally {
+                                                        try {
+                                                            if (links_1_1 && !links_1_1.done && (_f = links_1.return)) _f.call(links_1);
+                                                        }
+                                                        finally { if (e_4) throw e_4.error; }
+                                                    }
+                                                }
+                                            }
+                                            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                                            finally {
+                                                try {
+                                                    if (associatedPRs_1_1 && !associatedPRs_1_1.done && (_e = associatedPRs_1.return)) _e.call(associatedPRs_1);
+                                                }
+                                                finally { if (e_3) throw e_3.error; }
                                             }
                                             return [2 /*return*/];
                                     }

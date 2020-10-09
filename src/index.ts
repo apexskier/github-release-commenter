@@ -42,14 +42,21 @@ const closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                   messageHeadlineHTML
                   messageBodyHTML
                   associatedPullRequests(first: 10) {
+                    pageInfo {
+                      hasNextPage
+                    }
                     edges {
                       node {
                         title
                         number
                         timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {
+                          pageInfo {
+                            hasNextPage
+                          }
                           nodes {
                             ... on ConnectedEvent {
-                              id
+                              __typename
+                              isCrossRepository
                               subject {
                                 ... on Issue {
                                   number
@@ -57,7 +64,8 @@ const closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                               }
                             }
                             ... on DisconnectedEvent {
-                              id
+                              __typename
+                              isCrossRepository
                               subject {
                                 ... on Issue {
                                   number
@@ -78,25 +86,33 @@ const closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
               messageHeadlineHTML: string;
               messageBodyHTML: string;
               associatedPullRequests: {
+                pageInfo: { hasNextPage: boolean };
                 edges: Array<{
                   node: {
                     title: string;
                     number: number;
                     timelineItems: {
-                      nodes: Array<unknown>;
+                      pageInfo: { hasNextPage: boolean };
+                      nodes: Array<{
+                        __typename: "ConnectedEvent" | "DisconnectedEvent";
+                        isCrossRepository: boolean;
+                        subject: {
+                          number: number;
+                        };
+                      }>;
                     };
                   };
                 }>;
               };
             };
           } = await octokit.graphql(query);
-          
+
           if (!response.resource) {
             return;
           }
-          
-          console.info(JSON.stringify(response.resource, null, 2));
-          
+
+          core.info(JSON.stringify(response.resource, null, 2));
+
           const html =
             response.resource.messageHeadlineHTML +
             " " +
@@ -104,6 +120,32 @@ const closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
           for (const match of html.matchAll(closesMatcher)) {
             const [, num] = match;
             linkedIssuesPrs.add(num);
+          }
+
+          if (response.resource.associatedPullRequests.pageInfo.hasNextPage) {
+            core.warning(`Too many PRs associated with ${commit.sha}`);
+          }
+
+          const seen = new Set<number>();
+          const associatedPRs = response.resource.associatedPullRequests.edges;
+          for (const associatedPR of associatedPRs) {
+            if (associatedPR.node.timelineItems.pageInfo.hasNextPage) {
+              core.warning(`Too many links for #${associatedPR.node.number}`);
+            }
+            // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
+            // ignore links that aren't part of this repo
+            const links = associatedPR.node.timelineItems.nodes
+              .filter((node) => !node.isCrossRepository)
+              .reverse();
+            for (const link of links) {
+              if (seen.has(link.subject.number)) {
+                continue;
+              }
+              if (link.__typename == "ConnectedEvent") {
+                linkedIssuesPrs.add(`${link.subject.number}`);
+              }
+              seen.add(link.subject.number);
+            }
           }
         })()
       )

@@ -50,6 +50,7 @@ function* matchAll(re: RegExp, s: string) {
             {
               resource(url: "${payload.repository.html_url}/commit/${commit.sha}") {
                 ... on Commit {
+                  messageHeadlineHTML
                   messageBodyHTML
                   associatedPullRequests(first: 10) {
                     edges {
@@ -86,7 +87,8 @@ function* matchAll(re: RegExp, s: string) {
           core.info(query);
           const response: {
             data: {
-              resource: {
+              resource: null | {
+                messageHeadlineHTML: string;
                 messageBodyHTML: string;
                 associatedPullRequests: {
                   edges: Array<{
@@ -102,8 +104,14 @@ function* matchAll(re: RegExp, s: string) {
               };
             };
           } = await octokit.graphql(query);
-          const body = response.data.resource.messageBodyHTML;
-          for (const match in matchAll(closesMatcher, body)) {
+          if (!response.data.resource) {
+            return;
+          }
+          const html =
+            response.data.resource.messageHeadlineHTML +
+            " " +
+            response.data.resource.messageBodyHTML;
+          for (const match in matchAll(closesMatcher, html)) {
             const [, num] = match;
             linkedIssuesPrs.add(num);
           }

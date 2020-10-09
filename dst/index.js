@@ -93,6 +93,14 @@ var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                     return [4 /*yield*/, octokit_1.repos.listReleases(__assign(__assign({}, github.context.repo), { per_page: 2 }))];
                 case 1:
                     releases = (_c.sent()).data;
+                    if (releases.length < 2) {
+                        if (!releases.length) {
+                            core.error("no releases found");
+                            return [2 /*return*/];
+                        }
+                        core.info("first release");
+                        return [2 /*return*/];
+                    }
                     _a = __read(releases, 2), currentRelease = _a[0], priorRelease = _a[1];
                     return [4 /*yield*/, octokit_1.repos.compareCommits(__assign(__assign({}, github.context.repo), { base: priorRelease.tag_name, head: currentRelease.tag_name }))];
                 case 2:

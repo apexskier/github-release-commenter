@@ -185,7 +185,7 @@ var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                         for (linkedIssuesPrs_1 = __values(linkedIssuesPrs_2), linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next(); !linkedIssuesPrs_1_1.done; linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next()) {
                             issueNumber = linkedIssuesPrs_1_1.value;
                             releaseLabel = currentRelease.name || currentRelease.tag_name;
-                            request = __assign(__assign({}, github.context.repo), { issue_number: parseInt(issueNumber), body: "Released in [" + releaseLabel + "](" + currentRelease.html_url + ")" });
+                            request = __assign(__assign({}, github.context.repo), { issue_number: parseInt(issueNumber), body: "Included in release [" + releaseLabel + "](" + currentRelease.html_url + ")" });
                             core.info(JSON.stringify(request, null, 2));
                             commentRequests.push(octokit_1.issues.createComment(request));
                         }

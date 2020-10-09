@@ -76,25 +76,7 @@ var __values = (this && this.__values) || function(o) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var core = require("@actions/core");
 var github = require("@actions/github");
-var closesMatcher = /aria-label=\\"This commit closes issue #(\d+)\.\\"/g;
-function matchAll(re, s) {
-    var m;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                m = re.exec(s);
-                if (!m) return [3 /*break*/, 2];
-                return [4 /*yield*/, m];
-            case 1:
-                _a.sent();
-                _a.label = 2;
-            case 2:
-                if (m) return [3 /*break*/, 0];
-                _a.label = 3;
-            case 3: return [2 /*return*/];
-        }
-    });
-}
+var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
 (function main() {
     return __awaiter(this, void 0, void 0, function () {
         var payload_1, githubToken, octokit_1, releases, _a, currentRelease, priorRelease, commits, linkedIssuesPrs_2, commentRequests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, releaseLabel, request, error_1;
@@ -134,7 +116,7 @@ function matchAll(re, s) {
                                             html = response.resource.messageHeadlineHTML +
                                                 " " +
                                                 response.resource.messageBodyHTML;
-                                            for (match in matchAll(closesMatcher, html)) {
+                                            for (match in html.matchAll(closesMatcher)) {
                                                 _a = __read(match, 2), num = _a[1];
                                                 linkedIssuesPrs_2.add(num);
                                             }

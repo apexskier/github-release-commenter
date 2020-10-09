@@ -2,18 +2,7 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import type * as Webhooks from "@octokit/webhooks";
 
-const closesMatcher = /aria-label=\\"This commit closes issue #(\d+)\.\\"/g;
-
-function* matchAll(re: RegExp, s: string) {
-  let m;
-
-  do {
-    m = re.exec(s);
-    if (m) {
-      yield m;
-    }
-  } while (m);
-}
+const closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
 
 (async function main() {
   try {
@@ -109,7 +98,7 @@ function* matchAll(re: RegExp, s: string) {
             response.resource.messageHeadlineHTML +
             " " +
             response.resource.messageBodyHTML;
-          for (const match in matchAll(closesMatcher, html)) {
+          for (const match in html.matchAll(closesMatcher)) {
             const [, num] = match;
             linkedIssuesPrs.add(num);
           }

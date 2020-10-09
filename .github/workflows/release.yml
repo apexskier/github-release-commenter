@@ -1,4 +1,4 @@
-name: release
+name: Release management
 
 on:
   release:

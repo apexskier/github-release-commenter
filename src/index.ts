@@ -90,20 +90,19 @@ const closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
               };
             };
           } = await octokit.graphql(query);
-          // core.info(JSON.stringify({ response }, null, 2));
+          
           if (!response.resource) {
             return;
           }
+          
+          console.info(JSON.stringify(response.resource, null, 2));
+          
           const html =
             response.resource.messageHeadlineHTML +
             " " +
             response.resource.messageBodyHTML;
-          core.info(html);
-          core.info(closesMatcher.toString());
           for (const match of html.matchAll(closesMatcher)) {
             const [, num] = match;
-            core.info(JSON.stringify(match, null, 2));
-            core.info(num);
             linkedIssuesPrs.add(num);
           }
         })()

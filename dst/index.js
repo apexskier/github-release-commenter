@@ -110,21 +110,16 @@ var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
                                             return [4 /*yield*/, octokit_1.graphql(query)];
                                         case 1:
                                             response = _e.sent();
-                                            // core.info(JSON.stringify({ response }, null, 2));
                                             if (!response.resource) {
                                                 return [2 /*return*/];
                                             }
                                             html = response.resource.messageHeadlineHTML +
                                                 " " +
                                                 response.resource.messageBodyHTML;
-                                            core.info(html);
-                                            core.info(closesMatcher.toString());
                                             try {
                                                 for (_a = __values(html.matchAll(closesMatcher)), _b = _a.next(); !_b.done; _b = _a.next()) {
                                                     match = _b.value;
                                                     _c = __read(match, 2), num = _c[1];
-                                                    core.info(JSON.stringify(match, null, 2));
-                                                    core.info(num);
                                                     linkedIssuesPrs_2.add(num);
                                                 }
                                             }

@@ -46,32 +46,115 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var core = require("@actions/core");
 var github = require("@actions/github");
+var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
+function matchAll(re, s) {
+    var m;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                m = re.exec(s);
+                if (!m) return [3 /*break*/, 2];
+                return [4 /*yield*/, m];
+            case 1:
+                _a.sent();
+                _a.label = 2;
+            case 2:
+                if (m) return [3 /*break*/, 0];
+                _a.label = 3;
+            case 3: return [2 /*return*/];
+        }
+    });
+}
 (function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var payload, payloadStr, githubToken, octokit, releases, error_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var payload_1, githubToken, octokit_1, releases, _a, currentRelease, priorRelease, commits, linkedIssuesPrs_2, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, error_1;
+        var e_1, _b;
+        var _this = this;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
                 case 0:
-                    _a.trys.push([0, 2, , 3]);
-                    payload = github.context
+                    _c.trys.push([0, 4, , 5]);
+                    payload_1 = github.context
                         .payload;
-                    payloadStr = JSON.stringify(payload, undefined, 2);
-                    console.log("The event payload: " + payloadStr);
                     githubToken = core.getInput("GITHUB_TOKEN");
-                    octokit = github.getOctokit(githubToken);
-                    return [4 /*yield*/, octokit.repos.listReleases(__assign(__assign({}, github.context.repo), { per_page: 2 }))];
+                    octokit_1 = github.getOctokit(githubToken);
+                    return [4 /*yield*/, octokit_1.repos.listReleases(__assign(__assign({}, github.context.repo), { per_page: 2 }))];
                 case 1:
-                    releases = (_a.sent()).data;
-                    console.log(JSON.stringify(releases[1], undefined, 2));
-                    return [3 /*break*/, 3];
+                    releases = (_c.sent()).data;
+                    _a = __read(releases, 2), currentRelease = _a[0], priorRelease = _a[1];
+                    return [4 /*yield*/, octokit_1.repos.compareCommits(__assign(__assign({}, github.context.repo), { base: priorRelease.target_commitish, head: currentRelease.target_commitish }))];
                 case 2:
-                    error_1 = _a.sent();
+                    commits = (_c.sent()).data.commits;
+                    linkedIssuesPrs_2 = new Set();
+                    return [4 /*yield*/, Promise.all(commits.map(function (commit) {
+                            (function () { return __awaiter(_this, void 0, void 0, function () {
+                                var response, body, match, _a, num;
+                                return __generator(this, function (_b) {
+                                    switch (_b.label) {
+                                        case 0: return [4 /*yield*/, octokit_1.graphql("\n          {\n            resource(url: \"" + payload_1.repository.html_url + "/commit/" + commit.sha + "\") {\n              ... on Commit {\n                messageBodyHTML\n                associatedPullRequests(first: 10) {\n                  edges {\n                    node {\n                      title\n                      number\n                      timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {\n                        nodes {\n                          ... on ConnectedEvent {\n                            id\n                            subject {\n                              ... on Issue {\n                                number\n                              }\n                            }\n                          }\n                          ... on DisconnectedEvent {\n                            id\n                            subject {\n                              ... on Issue {\n                                number\n                              }\n                            }\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        ")];
+                                        case 1:
+                                            response = _b.sent();
+                                            body = response.data.resource.messageBodyHTML;
+                                            for (match in matchAll(closesMatcher, body)) {
+                                                _a = __read(match, 2), num = _a[1];
+                                                linkedIssuesPrs_2.add(num);
+                                            }
+                                            return [2 /*return*/];
+                                    }
+                                });
+                            }); })();
+                        }))];
+                case 3:
+                    _c.sent();
+                    try {
+                        for (linkedIssuesPrs_1 = __values(linkedIssuesPrs_2), linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next(); !linkedIssuesPrs_1_1.done; linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next()) {
+                            issueNumber = linkedIssuesPrs_1_1.value;
+                            octokit_1.issues.createComment(__assign(__assign({}, github.context.repo), { issue_number: parseInt(issueNumber), body: "Released in [" + currentRelease.name + "](" + currentRelease.html_url + ")" }));
+                        }
+                    }
+                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                    finally {
+                        try {
+                            if (linkedIssuesPrs_1_1 && !linkedIssuesPrs_1_1.done && (_b = linkedIssuesPrs_1.return)) _b.call(linkedIssuesPrs_1);
+                        }
+                        finally { if (e_1) throw e_1.error; }
+                    }
+                    return [3 /*break*/, 5];
+                case 4:
+                    error_1 = _c.sent();
                     core.setFailed(error_1.message);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+                    return [3 /*break*/, 5];
+                case 5: return [2 /*return*/];
             }
         });
     });

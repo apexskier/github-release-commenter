@@ -128,7 +128,7 @@ function matchAll(re, s) {
                                             return [4 /*yield*/, octokit_1.graphql(query)];
                                         case 1:
                                             response = _b.sent();
-                                            core.info(JSON.stringify(response, null, 2));
+                                            core.info(JSON.stringify({ response: response }, null, 2));
                                             if (!response.data.resource) {
                                                 return [2 /*return*/];
                                             }

@@ -11,15 +11,12 @@ jobs:
 
     steps:
       - name: Tag
-        uses: zwaldowski/semver-release-action@v1
+        uses: zwaldowski/semver-release-action@v2
         id: tag
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           bump: prerelease
           preid: alpha
-
-      - run: |
-          echo ${{ steps.tag.outputs.version_tag }}
 
       - name: Release
         uses: actions/create-release@v1

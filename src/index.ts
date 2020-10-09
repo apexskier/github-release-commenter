@@ -39,6 +39,10 @@ function* matchAll(re: RegExp, s: string) {
       head: currentRelease.target_commitish,
     });
 
+    core.info(
+      `${priorRelease.target_commitish}...${currentRelease.target_commitish}`
+    );
+
     const linkedIssuesPrs = new Set<string>();
 
     await Promise.all(
@@ -81,7 +85,7 @@ function* matchAll(re: RegExp, s: string) {
               }
             }
           `;
-          console.log(query);
+          core.info(query);
           const response: {
             data: {
               resource: {

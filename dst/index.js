@@ -115,6 +115,7 @@ function matchAll(re, s) {
                     return [4 /*yield*/, octokit_1.repos.compareCommits(__assign(__assign({}, github.context.repo), { base: priorRelease.target_commitish, head: currentRelease.target_commitish }))];
                 case 2:
                     commits = (_c.sent()).data.commits;
+                    core.info(priorRelease.target_commitish + "..." + currentRelease.target_commitish);
                     linkedIssuesPrs_2 = new Set();
                     return [4 /*yield*/, Promise.all(commits.map(function (commit) {
                             return (function () { return __awaiter(_this, void 0, void 0, function () {
@@ -123,7 +124,7 @@ function matchAll(re, s) {
                                     switch (_b.label) {
                                         case 0:
                                             query = "\n            {\n              resource(url: \"" + payload_1.repository.html_url + "/commit/" + commit.sha + "\") {\n                ... on Commit {\n                  messageBodyHTML\n                  associatedPullRequests(first: 10) {\n                    edges {\n                      node {\n                        title\n                        number\n                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {\n                          nodes {\n                            ... on ConnectedEvent {\n                              id\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                            ... on DisconnectedEvent {\n                              id\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          ";
-                                            console.log(query);
+                                            core.info(query);
                                             return [4 /*yield*/, octokit_1.graphql(query)];
                                         case 1:
                                             response = _b.sent();

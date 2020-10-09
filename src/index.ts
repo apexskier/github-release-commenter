@@ -35,13 +35,11 @@ function* matchAll(re: RegExp, s: string) {
       data: { commits },
     } = await octokit.repos.compareCommits({
       ...github.context.repo,
-      base: priorRelease.target_commitish,
-      head: currentRelease.target_commitish,
+      base: priorRelease.tag_name,
+      head: currentRelease.tag_name,
     });
 
-    core.info(
-      `${priorRelease.target_commitish}...${currentRelease.target_commitish}`
-    );
+    core.info(`${priorRelease.tag_name}...${currentRelease.tag_name}`);
 
     const linkedIssuesPrs = new Set<string>();
 

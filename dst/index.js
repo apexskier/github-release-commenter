@@ -112,10 +112,10 @@ function matchAll(re, s) {
                 case 1:
                     releases = (_c.sent()).data;
                     _a = __read(releases, 2), currentRelease = _a[0], priorRelease = _a[1];
-                    return [4 /*yield*/, octokit_1.repos.compareCommits(__assign(__assign({}, github.context.repo), { base: priorRelease.target_commitish, head: currentRelease.target_commitish }))];
+                    return [4 /*yield*/, octokit_1.repos.compareCommits(__assign(__assign({}, github.context.repo), { base: priorRelease.tag_name, head: currentRelease.tag_name }))];
                 case 2:
                     commits = (_c.sent()).data.commits;
-                    core.info(priorRelease.target_commitish + "..." + currentRelease.target_commitish);
+                    core.info(priorRelease.tag_name + "..." + currentRelease.tag_name);
                     linkedIssuesPrs_2 = new Set();
                     return [4 /*yield*/, Promise.all(commits.map(function (commit) {
                             return (function () { return __awaiter(_this, void 0, void 0, function () {

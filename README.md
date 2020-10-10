@@ -16,7 +16,7 @@ on:
 jobs:
   release:
     steps:
-      - uses: apexskier/github-release-commenter@latest
+      - uses: apexskier/github-release-commenter@v1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```

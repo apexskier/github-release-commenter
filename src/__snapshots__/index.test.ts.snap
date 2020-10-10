@@ -148,11 +148,21 @@ Object {
         Array [
           Object {
             "body": "Included in release [current_tag_name](http://current_release)",
+            "issue_number": 9,
+          },
+        ],
+        Array [
+          Object {
+            "body": "Included in release [current_tag_name](http://current_release)",
             "issue_number": 2,
           },
         ],
       ],
       "results": Array [
+        Object {
+          "type": "return",
+          "value": Promise {},
+        },
         Object {
           "type": "return",
           "value": Promise {},

@@ -30,7 +30,10 @@ describe("tests", () => {
   (core.warning as any) = jest.fn(console.warn.bind(console));
   (core.error as any) = jest.fn(console.error.bind(console));
 
-  let commentTempate = "Included in release {release_link}";
+  let commentTempate: string = "";
+  let labelTemplate: string | null = null;
+
+  let simpleMockOctokit: any = {};
 
   beforeEach(() => {
     github.getOctokit.mockReset().mockImplementationOnce(((token: string) => {
@@ -45,56 +48,60 @@ describe("tests", () => {
       if (key == "comment-template") {
         return commentTempate;
       }
+      if (key == "label-template") {
+        return labelTemplate;
+      }
       fail(`Unexpected input key ${key}`);
     });
-  });
-  //
-  // afterEach(() => {
-  //   delete require.cache[require.resolve("./index")];
-  // })
 
-  const simpleMockOctokit = {
-    repos: {
-      listReleases: jest.fn(() =>
+    commentTempate = "Included in release {release_link}";
+    labelTemplate = null;
+    simpleMockOctokit = {
+      repos: {
+        listReleases: jest.fn(() =>
+          Promise.resolve({
+            data: [
+              {
+                name: "Release Name",
+                tag_name: "current_tag_name",
+                html_url: "http://current_release",
+              },
+              {
+                tag_name: "prior_tag_name",
+                html_url: "http://prior_release",
+              },
+            ],
+          })
+        ),
+        compareCommits: jest.fn(() =>
+          Promise.resolve({
+            data: { commits: [{ sha: "SHA1" }] },
+          })
+        ),
+      },
+      graphql: jest.fn(() =>
         Promise.resolve({
-          data: [
-            {
-              tag_name: "current_tag_name",
-              html_url: "http://current_release",
+          resource: {
+            messageHeadlineHTML: "",
+            messageBodyHTML:
+              '<span class="issue-keyword tooltipped tooltipped-se" aria-label="This commit closes issue #123.">Closes</span> <p><span class="issue-keyword tooltipped tooltipped-se" aria-label="This pull request closes issue #7.">Closes</span>',
+            associatedPullRequests: {
+              pageInfo: { hasNextPage: false },
+              edges: [],
             },
-            {
-              tag_name: "prior_tag_name",
-              html_url: "http://prior_release",
-            },
-          ],
-        })
-      ),
-      compareCommits: jest.fn(() =>
-        Promise.resolve({
-          data: { commits: [{ sha: "SHA1" }] },
-        })
-      ),
-    },
-    graphql: jest.fn(() =>
-      Promise.resolve({
-        resource: {
-          messageHeadlineHTML: "",
-          messageBodyHTML:
-            '<span class="issue-keyword tooltipped tooltipped-se" aria-label="This commit closes issue #123.">Closes</span> <p><span class="issue-keyword tooltipped tooltipped-se" aria-label="This pull request closes issue #7.">Closes</span>',
-          associatedPullRequests: {
-            pageInfo: { hasNextPage: false },
-            edges: [],
           },
-        },
-      })
-    ),
-    issues: {
-      createComment: jest.fn(() => Promise.resolve()),
-    },
-  };
+        })
+      ),
+      issues: {
+        createComment: jest.fn(() => Promise.resolve()),
+        addLabels: jest.fn(() => Promise.resolve()),
+      },
+    };
+  });
 
   test("main test", async () => {
     mockOctokit = {
+      ...simpleMockOctokit,
       repos: {
         listReleases: jest.fn(() =>
           Promise.resolve({
@@ -165,6 +172,7 @@ describe("tests", () => {
       ),
       issues: {
         createComment: jest.fn(() => Promise.resolve()),
+        addLabels: jest.fn(() => Promise.resolve()),
       },
     };
 
@@ -193,6 +201,19 @@ describe("tests", () => {
 
       expect(github.getOctokit).toBeCalled();
       expect(mockOctokit.issues.createComment).not.toBeCalled();
+    });
+
+    it("can apply labels", async () => {
+      labelTemplate = ":dart: landed,release-{release_tag},{release_name}";
+
+      jest.isolateModules(() => {
+        require("./index");
+      });
+
+      await new Promise((resolve) => setImmediate(() => resolve()));
+
+      expect(github.getOctokit).toBeCalled();
+      expect(mockOctokit.issues.addLabels.mock.calls).toMatchSnapshot();
     });
   });
 });

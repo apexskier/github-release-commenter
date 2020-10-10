@@ -4,6 +4,10 @@ import type * as Webhooks from "@octokit/webhooks";
 
 const closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+)\."/g;
 
+const releaseLinkTemplateRegex = /{release_link}/g;
+const releaseNameTemplateRegex = /{release_name}/g;
+const releaseTagTemplateRegex = /{release_tag}/g;
+
 (async function main() {
   try {
     const payload = github.context
@@ -13,6 +17,7 @@ const closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\
     const octokit = github.getOctokit(githubToken);
 
     const commentTemplate = core.getInput("comment-template");
+    const labelTemplate = core.getInput("label-template") || null;
 
     // watch out, this is returning deleted releases for some reason
     const { data: releases } = await octokit.repos.listReleases({
@@ -168,24 +173,47 @@ const closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\
     );
 
     const releaseLabel = currentRelease.name || currentRelease.tag_name;
-    const comment = commentTemplate.replace(
-      /{release_link}/g,
-      `[${releaseLabel}](${currentRelease.html_url})`
-    );
 
-    const commentRequests: Array<Promise<unknown>> = [];
-    for (const issueNumber of linkedIssuesPrs) {
+    const comment = commentTemplate
+      .trim()
+      .replace(
+        releaseLinkTemplateRegex,
+        `[${releaseLabel}](${currentRelease.html_url})`
+      )
+      .replace(releaseNameTemplateRegex, currentRelease.name)
+      .replace(releaseTagTemplateRegex, currentRelease.tag_name);
+    const labels = labelTemplate
+      ?.replace(releaseNameTemplateRegex, currentRelease.name)
+      ?.replace(releaseTagTemplateRegex, currentRelease.tag_name)
+      ?.split(",")
+      ?.map((l) => l.trim())
+      .filter((l) => l);
+
+    const requests: Array<Promise<unknown>> = [];
+    for (const issueStr of linkedIssuesPrs) {
+      const issueNumber = parseInt(issueStr);
+      const baseRequest = {
+        ...github.context.repo,
+        issue_number: issueNumber,
+      };
       if (comment) {
         const request = {
-          ...github.context.repo,
-          issue_number: parseInt(issueNumber),
+          ...baseRequest,
           body: comment,
         };
         core.info(JSON.stringify(request, null, 2));
-        commentRequests.push(octokit.issues.createComment(request));
+        requests.push(octokit.issues.createComment(request));
+      }
+      if (labels) {
+        const request = {
+          ...baseRequest,
+          labels,
+        };
+        core.info(JSON.stringify(request, null, 2));
+        requests.push(octokit.issues.addLabels(request));
       }
     }
-    await Promise.all(commentRequests);
+    await Promise.all(requests);
   } catch (error) {
     core.error(error);
     core.setFailed(error.message);

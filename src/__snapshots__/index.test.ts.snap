@@ -1,5 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`tests feature tests can apply labels 1`] = `
+Array [
+  Array [
+    Object {
+      "issue_number": 123,
+      "labels": Array [
+        ":dart: landed",
+        "release-current_tag_name",
+        "Release Name",
+      ],
+    },
+  ],
+  Array [
+    Object {
+      "issue_number": 7,
+      "labels": Array [
+        ":dart: landed",
+        "release-current_tag_name",
+        "Release Name",
+      ],
+    },
+  ],
+]
+`;
+
 exports[`tests main test 1`] = `
 Object {
   "graphql": [MockFunction] {
@@ -113,6 +138,7 @@ Object {
     ],
   },
   "issues": Object {
+    "addLabels": [MockFunction],
     "createComment": [MockFunction] {
       "calls": Array [
         Array [

@@ -81,23 +81,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core = require("@actions/core");
 var github = require("@actions/github");
 var closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+)\."/g;
+var releaseLinkTemplateRegex = /{release_link}/g;
+var releaseNameTemplateRegex = /{release_name}/g;
+var releaseTagTemplateRegex = /{release_tag}/g;
 (function main() {
+    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function () {
-        var payload_1, githubToken, octokit_1, commentTemplate, releases, _a, currentRelease, priorRelease, commits, linkedIssuesPrs_2, releaseLabel, comment, commentRequests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, request, error_1;
-        var e_1, _b;
+        var payload_1, githubToken, octokit_1, commentTemplate, labelTemplate, releases, _d, currentRelease, priorRelease, commits, linkedIssuesPrs_2, releaseLabel, comment, labels, requests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueStr, issueNumber, baseRequest, request, request, error_1;
+        var e_1, _e;
         var _this = this;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
+        return __generator(this, function (_f) {
+            switch (_f.label) {
                 case 0:
-                    _c.trys.push([0, 5, , 6]);
+                    _f.trys.push([0, 5, , 6]);
                     payload_1 = github.context
                         .payload;
                     githubToken = core.getInput("GITHUB_TOKEN");
                     octokit_1 = github.getOctokit(githubToken);
                     commentTemplate = core.getInput("comment-template");
+                    labelTemplate = core.getInput("label-template") || null;
                     return [4 /*yield*/, octokit_1.repos.listReleases(__assign(__assign({}, github.context.repo), { per_page: 2 }))];
                 case 1:
-                    releases = (_c.sent()).data;
+                    releases = (_f.sent()).data;
                     if (releases.length < 2) {
                         if (!releases.length) {
                             core.error("no releases found");
@@ -106,10 +111,10 @@ var closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+
                         core.info("first release");
                         return [2 /*return*/];
                     }
-                    _a = __read(releases, 2), currentRelease = _a[0], priorRelease = _a[1];
+                    _d = __read(releases, 2), currentRelease = _d[0], priorRelease = _d[1];
                     return [4 /*yield*/, octokit_1.repos.compareCommits(__assign(__assign({}, github.context.repo), { base: priorRelease.tag_name, head: currentRelease.tag_name }))];
                 case 2:
-                    commits = (_c.sent()).data.commits;
+                    commits = (_f.sent()).data.commits;
                     core.info(priorRelease.tag_name + "..." + currentRelease.tag_name);
                     linkedIssuesPrs_2 = new Set();
                     return [4 /*yield*/, Promise.all(commits.map(function (commit) {
@@ -194,33 +199,45 @@ var closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+
                             }); })();
                         }))];
                 case 3:
-                    _c.sent();
+                    _f.sent();
                     releaseLabel = currentRelease.name || currentRelease.tag_name;
-                    comment = commentTemplate.replace(/{release_link}/g, "[" + releaseLabel + "](" + currentRelease.html_url + ")");
-                    commentRequests = [];
+                    comment = commentTemplate
+                        .trim()
+                        .replace(releaseLinkTemplateRegex, "[" + releaseLabel + "](" + currentRelease.html_url + ")")
+                        .replace(releaseNameTemplateRegex, currentRelease.name)
+                        .replace(releaseTagTemplateRegex, currentRelease.tag_name);
+                    labels = (_c = (_b = (_a = labelTemplate === null || labelTemplate === void 0 ? void 0 : labelTemplate.replace(releaseNameTemplateRegex, currentRelease.name)) === null || _a === void 0 ? void 0 : _a.replace(releaseTagTemplateRegex, currentRelease.tag_name)) === null || _b === void 0 ? void 0 : _b.split(",")) === null || _c === void 0 ? void 0 : _c.map(function (l) { return l.trim(); }).filter(function (l) { return l; });
+                    requests = [];
                     try {
                         for (linkedIssuesPrs_1 = __values(linkedIssuesPrs_2), linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next(); !linkedIssuesPrs_1_1.done; linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next()) {
-                            issueNumber = linkedIssuesPrs_1_1.value;
+                            issueStr = linkedIssuesPrs_1_1.value;
+                            issueNumber = parseInt(issueStr);
+                            baseRequest = __assign(__assign({}, github.context.repo), { issue_number: issueNumber });
                             if (comment) {
-                                request = __assign(__assign({}, github.context.repo), { issue_number: parseInt(issueNumber), body: comment });
+                                request = __assign(__assign({}, baseRequest), { body: comment });
                                 core.info(JSON.stringify(request, null, 2));
-                                commentRequests.push(octokit_1.issues.createComment(request));
+                                requests.push(octokit_1.issues.createComment(request));
+                            }
+                            if (labels) {
+                                request = __assign(__assign({}, baseRequest), { labels: labels });
+                                core.info(JSON.stringify(request, null, 2));
+                                requests.push(octokit_1.issues.addLabels(request));
                             }
                         }
                     }
                     catch (e_1_1) { e_1 = { error: e_1_1 }; }
                     finally {
                         try {
-                            if (linkedIssuesPrs_1_1 && !linkedIssuesPrs_1_1.done && (_b = linkedIssuesPrs_1.return)) _b.call(linkedIssuesPrs_1);
+                            if (linkedIssuesPrs_1_1 && !linkedIssuesPrs_1_1.done && (_e = linkedIssuesPrs_1.return)) _e.call(linkedIssuesPrs_1);
                         }
                         finally { if (e_1) throw e_1.error; }
                     }
-                    return [4 /*yield*/, Promise.all(commentRequests)];
+                    return [4 /*yield*/, Promise.all(requests)];
                 case 4:
-                    _c.sent();
+                    _f.sent();
                     return [3 /*break*/, 6];
                 case 5:
-                    error_1 = _c.sent();
+                    error_1 = _f.sent();
                     core.error(error_1);
                     core.setFailed(error_1.message);
                     return [3 /*break*/, 6];

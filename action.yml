@@ -11,12 +11,12 @@ inputs:
     required: true
   comment-template:
     description: |
-      Text template for the comment string. `{release_link}` will be replaced
-      with a markdown link to the release. Set to the empty string to disable
-      commenting.
+      Text template for the comment string.
     required: false
     default: |
       Included in release {release_link}
+  label-template:
+    description: Add the given label. Multiple labels can be separated by commas.
 runs:
   using: node12
   main: dst/index.js

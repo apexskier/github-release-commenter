@@ -130,6 +130,12 @@ Object {
         Array [
           Object {
             "body": "Included in release [current_tag_name](http://current_release)",
+            "issue_number": 7,
+          },
+        ],
+        Array [
+          Object {
+            "body": "Included in release [current_tag_name](http://current_release)",
             "issue_number": 4,
           },
         ],
@@ -147,6 +153,10 @@ Object {
         ],
       ],
       "results": Array [
+        Object {
+          "type": "return",
+          "value": Promise {},
+        },
         Object {
           "type": "return",
           "value": Promise {},

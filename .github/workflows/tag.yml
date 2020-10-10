@@ -2,8 +2,8 @@ name: Tag creation
 
 on:
   push:
-  tags:
-    - v*
+    tags:
+      - v*
 
 jobs:
   release:

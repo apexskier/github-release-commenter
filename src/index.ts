@@ -145,6 +145,7 @@ const closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\
             if (associatedPR.node.timelineItems.pageInfo.hasNextPage) {
               core.warning(`Too many links for #${associatedPR.node.number}`);
             }
+            linkedIssuesPrs.add(`${associatedPR.node.number}`);
             // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
             // ignore links that aren't part of this repo
             const links = associatedPR.node.timelineItems.nodes

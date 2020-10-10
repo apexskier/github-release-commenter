@@ -18,7 +18,7 @@ jobs:
       - uses: apexskier/github-semver-parse@v1
         id: semver
         with:
-          version: ${{ github.event.tag_name }}
+          version: ${{ github.event.release.tag_name }}
 
       # These use GITHUB_TOKEN, so they won't recurse and create more releases
 

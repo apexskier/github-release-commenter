@@ -1,0 +1,24 @@
+name: Tag creation
+
+on:
+  push:
+  tags:
+    - v*
+
+jobs:
+  release:
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Get the version
+      id: version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      shell: bash
+
+    - name: Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_GH_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.VERSION }}
+        release_name: ${{ steps.version.outputs.VERSION }}

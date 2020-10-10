@@ -29,21 +29,3 @@ jobs:
           tag_name: ${{ steps.version.outputs.VERSION }}
           release_name: ${{ steps.version.outputs.VERSION }}
           prerelease: ${{ !!steps.semver.outputs.prerelease }}
-
-      # These use GITHUB_TOKEN, so they won't recurse and create more releases
-
-      - name: Tag
-        if: ${{ !steps.semver.outputs.prerelease && steps.semver.outputs.version }}
-        uses: richardsimko/update-tag@v1.0.4
-        with:
-          tag_name: ${{ format('v{0}', steps.semver.outputs.major) }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Tag latest
-        if: ${{ !steps.semver.outputs.prerelease && steps.semver.outputs.version }}
-        uses: richardsimko/update-tag@v1.0.4
-        with:
-          tag_name: latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

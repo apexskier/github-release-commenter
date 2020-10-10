@@ -12,6 +12,8 @@ const closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\
     const githubToken = core.getInput("GITHUB_TOKEN");
     const octokit = github.getOctokit(githubToken);
 
+    const commentTemplate = core.getInput("comment-template");
+
     // watch out, this is returning deleted releases for some reason
     const { data: releases } = await octokit.repos.listReleases({
       ...github.context.repo,
@@ -165,13 +167,18 @@ const closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\
       )
     );
 
+    const releaseLabel = currentRelease.name || currentRelease.tag_name;
+    const comment = commentTemplate.replace(
+      /{release_link}/g,
+      `[${releaseLabel}](${currentRelease.html_url})`
+    );
+
     const commentRequests: Array<Promise<unknown>> = [];
     for (const issueNumber of linkedIssuesPrs) {
-      const releaseLabel = currentRelease.name || currentRelease.tag_name;
       const request = {
         ...github.context.repo,
         issue_number: parseInt(issueNumber),
-        body: `Included in release [${releaseLabel}](${currentRelease.html_url})`,
+        body: comment,
       };
       core.info(JSON.stringify(request, null, 2));
       commentRequests.push(octokit.issues.createComment(request));

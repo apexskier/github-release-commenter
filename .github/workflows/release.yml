@@ -14,6 +14,7 @@ jobs:
       - uses: ./
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          comment-template: Release {release_link} addresses this.
 
       - uses: apexskier/github-semver-parse@v1
         id: semver

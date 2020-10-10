@@ -2,8 +2,13 @@ import type * as githubModule from "@actions/github";
 
 jest.mock("@actions/core", () => ({
   getInput: jest.fn((key) => {
-    expect(key).toBe("GITHUB_TOKEN");
-    return "GITHUB_TOKEN_VALUE";
+    if (key == "GITHUB_TOKEN") {
+      return "GITHUB_TOKEN_VALUE";
+    }
+    if (key == "comment-template") {
+      return "Included in release {release_link}";
+    }
+    fail(`Unexpected input key ${key}`);
   }),
   info: jest.fn(),
   warning: console.warn.bind(console),

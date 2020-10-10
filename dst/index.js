@@ -83,7 +83,7 @@ var github = require("@actions/github");
 var closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+)\."/g;
 (function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var payload_1, githubToken, octokit_1, releases, _a, currentRelease, priorRelease, commits, linkedIssuesPrs_2, commentRequests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, releaseLabel, request, error_1;
+        var payload_1, githubToken, octokit_1, commentTemplate, releases, _a, currentRelease, priorRelease, commits, linkedIssuesPrs_2, releaseLabel, comment, commentRequests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, request, error_1;
         var e_1, _b;
         var _this = this;
         return __generator(this, function (_c) {
@@ -94,6 +94,7 @@ var closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+
                         .payload;
                     githubToken = core.getInput("GITHUB_TOKEN");
                     octokit_1 = github.getOctokit(githubToken);
+                    commentTemplate = core.getInput("comment-template");
                     return [4 /*yield*/, octokit_1.repos.listReleases(__assign(__assign({}, github.context.repo), { per_page: 2 }))];
                 case 1:
                     releases = (_c.sent()).data;
@@ -194,12 +195,13 @@ var closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+
                         }))];
                 case 3:
                     _c.sent();
+                    releaseLabel = currentRelease.name || currentRelease.tag_name;
+                    comment = commentTemplate.replace(/{release_link}/g, "[" + releaseLabel + "](" + currentRelease.html_url + ")");
                     commentRequests = [];
                     try {
                         for (linkedIssuesPrs_1 = __values(linkedIssuesPrs_2), linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next(); !linkedIssuesPrs_1_1.done; linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next()) {
                             issueNumber = linkedIssuesPrs_1_1.value;
-                            releaseLabel = currentRelease.name || currentRelease.tag_name;
-                            request = __assign(__assign({}, github.context.repo), { issue_number: parseInt(issueNumber), body: "Included in release [" + releaseLabel + "](" + currentRelease.html_url + ")" });
+                            request = __assign(__assign({}, github.context.repo), { issue_number: parseInt(issueNumber), body: comment });
                             core.info(JSON.stringify(request, null, 2));
                             commentRequests.push(octokit_1.issues.createComment(request));
                         }

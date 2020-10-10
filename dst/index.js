@@ -155,6 +155,7 @@ var closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+
                                                     if (associatedPR.node.timelineItems.pageInfo.hasNextPage) {
                                                         core.warning("Too many links for #" + associatedPR.node.number);
                                                     }
+                                                    linkedIssuesPrs_2.add("" + associatedPR.node.number);
                                                     links = associatedPR.node.timelineItems.nodes
                                                         .filter(function (node) { return !node.isCrossRepository; })
                                                         .reverse();

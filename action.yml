@@ -1,5 +1,5 @@
-name: "Release Commenter"
-description: "Comment on PRs and Issues when a fix is released"
+name: Release Commenter
+description: Comment on PRs and Issues when a fix is released
 branding:
   icon: message-square
   color: blue
@@ -9,5 +9,5 @@ inputs:
       This should be a token with access to your repository scoped in as a secret, e.g. secrets.GITHUB_TOKEN
     required: true
 runs:
-  using: "node12"
-  main: "dst/index.js"
+  using: node12
+  main: dst/index.js

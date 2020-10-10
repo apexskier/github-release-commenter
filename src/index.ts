@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import type * as Webhooks from "@octokit/webhooks";
 
-const closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
+const closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+)\."/g;
 
 (async function main() {
   try {

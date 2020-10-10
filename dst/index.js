@@ -80,7 +80,7 @@ var __values = (this && this.__values) || function(o) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var core = require("@actions/core");
 var github = require("@actions/github");
-var closesMatcher = /aria-label="This commit closes issue #(\d+)\."/g;
+var closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+)\."/g;
 (function main() {
     return __awaiter(this, void 0, void 0, function () {
         var payload_1, githubToken, octokit_1, releases, _a, currentRelease, priorRelease, commits, linkedIssuesPrs_2, commentRequests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, releaseLabel, request, error_1;

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`main test 1`] = `
+exports[`tests main test 1`] = `
 Object {
   "graphql": [MockFunction] {
     "calls": Array [

@@ -1,4 +1,4 @@
-name: "Github Release Commenter"
+name: "Release Commenter"
 description: "Comment on PRs and Issues when a fix is released"
 branding:
   icon: message-square

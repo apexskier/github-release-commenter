@@ -1,7 +1,7 @@
 {
   "name": "github-release-commenter",
   "version": "0.0.0",
-  "description": "Github action to automatically comment on PRs and Issues when a fix is released.",
+  "description": "GitHub Action to automatically comment on PRs and Issues when a fix is released.",
   "main": "dst/index.js",
   "repository": "git@github.com:apexskier/github-release-commenter.git",
   "author": "Cameron Little <cameron@camlittle.com>",

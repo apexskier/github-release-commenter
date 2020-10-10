@@ -1,6 +1,6 @@
-# Github Release Commenter action
+# Release Commenter action
 
-This Github action automatically comments on PRs and Issues when a fix is released for them.
+This GitHub Action automatically comments on PRs and Issues when a fix is released for them.
 
 ## How it works
 

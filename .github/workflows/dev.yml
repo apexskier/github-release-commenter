@@ -15,7 +15,6 @@ jobs:
         id: tag
         with:
           github_token: ${{ secrets.RELEASE_GH_TOKEN }}
-          bump: prepatch
+          bump: prerelease
           prefix: v
           preid: dev
-          dry_run: true

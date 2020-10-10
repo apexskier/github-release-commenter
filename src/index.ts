@@ -175,13 +175,15 @@ const closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\
 
     const commentRequests: Array<Promise<unknown>> = [];
     for (const issueNumber of linkedIssuesPrs) {
-      const request = {
-        ...github.context.repo,
-        issue_number: parseInt(issueNumber),
-        body: comment,
-      };
-      core.info(JSON.stringify(request, null, 2));
-      commentRequests.push(octokit.issues.createComment(request));
+      if (comment) {
+        const request = {
+          ...github.context.repo,
+          issue_number: parseInt(issueNumber),
+          body: comment,
+        };
+        core.info(JSON.stringify(request, null, 2));
+        commentRequests.push(octokit.issues.createComment(request));
+      }
     }
     await Promise.all(commentRequests);
   } catch (error) {

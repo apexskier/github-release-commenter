@@ -30,7 +30,7 @@ describe("tests", () => {
   (core.warning as any) = jest.fn(console.warn.bind(console));
   (core.error as any) = jest.fn(console.error.bind(console));
 
-  const commentTempate = "Included in release {release_link}";
+  let commentTempate = "Included in release {release_link}";
 
   beforeEach(() => {
     github.getOctokit.mockReset().mockImplementationOnce(((token: string) => {
@@ -180,6 +180,19 @@ describe("tests", () => {
   describe("feature tests", () => {
     beforeEach(() => {
       mockOctokit = simpleMockOctokit;
+    });
+
+    it("can disable comments", async () => {
+      commentTempate = "";
+
+      jest.isolateModules(() => {
+        require("./index");
+      });
+
+      await new Promise((resolve) => setImmediate(() => resolve()));
+
+      expect(github.getOctokit).toBeCalled();
+      expect(mockOctokit.issues.createComment).not.toBeCalled();
     });
   });
 });

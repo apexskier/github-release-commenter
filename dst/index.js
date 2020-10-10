@@ -201,9 +201,11 @@ var closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+
                     try {
                         for (linkedIssuesPrs_1 = __values(linkedIssuesPrs_2), linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next(); !linkedIssuesPrs_1_1.done; linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next()) {
                             issueNumber = linkedIssuesPrs_1_1.value;
-                            request = __assign(__assign({}, github.context.repo), { issue_number: parseInt(issueNumber), body: comment });
-                            core.info(JSON.stringify(request, null, 2));
-                            commentRequests.push(octokit_1.issues.createComment(request));
+                            if (comment) {
+                                request = __assign(__assign({}, github.context.repo), { issue_number: parseInt(issueNumber), body: comment });
+                                core.info(JSON.stringify(request, null, 2));
+                                commentRequests.push(octokit_1.issues.createComment(request));
+                            }
                         }
                     }
                     catch (e_1_1) { e_1 = { error: e_1_1 }; }

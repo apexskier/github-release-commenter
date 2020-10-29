@@ -44,6 +44,14 @@ Object {
                       node {
                         bodyHTML
                         number
+                        labels(first: 10) {
+                          pageInfo {
+                            hasNextPage
+                          }
+                          nodes {
+                            name
+                          }
+                        }
                         timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {
                           pageInfo {
                             hasNextPage
@@ -92,6 +100,14 @@ Object {
                       node {
                         bodyHTML
                         number
+                        labels(first: 10) {
+                          pageInfo {
+                            hasNextPage
+                          }
+                          nodes {
+                            name
+                          }
+                        }
                         timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {
                           pageInfo {
                             hasNextPage

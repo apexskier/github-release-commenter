@@ -18,6 +18,7 @@ const releaseTagTemplateRegex = /{release_tag}/g;
 
     const commentTemplate = core.getInput("comment-template");
     const labelTemplate = core.getInput("label-template") || null;
+    const skipLabelTemplate = core.getInput("skip-label") || null;
 
     // watch out, this is returning deleted releases for some reason
     const { data: releases } = await octokit.repos.listReleases({
@@ -47,6 +48,26 @@ const releaseTagTemplateRegex = /{release_tag}/g;
 
     core.info(`${priorRelease.tag_name}...${currentRelease.tag_name}`);
 
+    const releaseLabel = currentRelease.name || currentRelease.tag_name;
+
+    const comment = commentTemplate
+      .trim()
+      .replace(
+        releaseLinkTemplateRegex,
+        `[${releaseLabel}](${currentRelease.html_url})`
+      )
+      .replace(releaseNameTemplateRegex, currentRelease.name)
+      .replace(releaseTagTemplateRegex, currentRelease.tag_name);
+    const parseLabels = (rawInput: string | null) =>
+      rawInput
+        ?.replace(releaseNameTemplateRegex, currentRelease.name)
+        ?.replace(releaseTagTemplateRegex, currentRelease.tag_name)
+        ?.split(",")
+        ?.map((l) => l.trim())
+        .filter((l) => l);
+    const labels = parseLabels(labelTemplate);
+    const skipLabels = parseLabels(skipLabelTemplate);
+
     const linkedIssuesPrs = new Set<string>();
 
     await Promise.all(
@@ -66,6 +87,14 @@ const releaseTagTemplateRegex = /{release_tag}/g;
                       node {
                         bodyHTML
                         number
+                        labels(first: 10) {
+                          pageInfo {
+                            hasNextPage
+                          }
+                          nodes {
+                            name
+                          }
+                        }
                         timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {
                           pageInfo {
                             hasNextPage
@@ -104,13 +133,19 @@ const releaseTagTemplateRegex = /{release_tag}/g;
               messageBodyHTML: string;
               associatedPullRequests: {
                 pageInfo: { hasNextPage: boolean };
-                edges: Array<{
+                edges: ReadonlyArray<{
                   node: {
                     bodyHTML: string;
                     number: number;
+                    labels: {
+                      pageInfo: { hasNextPage: boolean };
+                      nodes: ReadonlyArray<{
+                        name: string;
+                      }>;
+                    };
                     timelineItems: {
                       pageInfo: { hasNextPage: boolean };
-                      nodes: Array<{
+                      nodes: ReadonlyArray<{
                         __typename: "ConnectedEvent" | "DisconnectedEvent";
                         isCrossRepository: boolean;
                         subject: {
@@ -152,6 +187,17 @@ const releaseTagTemplateRegex = /{release_tag}/g;
             if (associatedPR.node.timelineItems.pageInfo.hasNextPage) {
               core.warning(`Too many links for #${associatedPR.node.number}`);
             }
+            if (associatedPR.node.labels.pageInfo.hasNextPage) {
+              core.warning(`Too many labels for #${associatedPR.node.number}`);
+            }
+            // a skip labels is present on this PR
+            if (
+              skipLabels?.some((l) =>
+                associatedPR.node.labels.nodes.some(({ name }) => name === l)
+              )
+            ) {
+              continue;
+            }
             linkedIssuesPrs.add(`${associatedPR.node.number}`);
             // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
             // ignore links that aren't part of this repo
@@ -171,23 +217,6 @@ const releaseTagTemplateRegex = /{release_tag}/g;
         })()
       )
     );
-
-    const releaseLabel = currentRelease.name || currentRelease.tag_name;
-
-    const comment = commentTemplate
-      .trim()
-      .replace(
-        releaseLinkTemplateRegex,
-        `[${releaseLabel}](${currentRelease.html_url})`
-      )
-      .replace(releaseNameTemplateRegex, currentRelease.name)
-      .replace(releaseTagTemplateRegex, currentRelease.tag_name);
-    const labels = labelTemplate
-      ?.replace(releaseNameTemplateRegex, currentRelease.name)
-      ?.replace(releaseTagTemplateRegex, currentRelease.tag_name)
-      ?.split(",")
-      ?.map((l) => l.trim())
-      .filter((l) => l);
 
     const requests: Array<Promise<unknown>> = [];
     for (const issueStr of linkedIssuesPrs) {

@@ -20,6 +20,10 @@ Override the comment posted on Issues and PRs. Set to the empty string to disabl
 
 Add the given label. Multiple labels can be separated by commas. `{release_name}` will be replaced with the release's name. `{release_tag}` will be replaced with the release's tag.
 
+**skip-label** (optional)
+
+Skip processing if any of the given labels are present. Same processing rules as **label-template**. Default is "dependencies".
+
 ## Example
 
 ```yml

@@ -85,24 +85,24 @@ var releaseLinkTemplateRegex = /{release_link}/g;
 var releaseNameTemplateRegex = /{release_name}/g;
 var releaseTagTemplateRegex = /{release_tag}/g;
 (function main() {
-    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function () {
-        var payload_1, githubToken, octokit_1, commentTemplate, labelTemplate, releases, _d, currentRelease, priorRelease, commits, linkedIssuesPrs_2, releaseLabel, comment, labels, requests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueStr, issueNumber, baseRequest, request, request, error_1;
-        var e_1, _e;
+        var payload_1, githubToken, octokit_1, commentTemplate, labelTemplate, skipLabelTemplate, releases, _a, currentRelease_1, priorRelease, commits, releaseLabel, comment, parseLabels, labels, skipLabels_1, linkedIssuesPrs_2, requests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueStr, issueNumber, baseRequest, request, request, error_1;
+        var e_1, _b;
         var _this = this;
-        return __generator(this, function (_f) {
-            switch (_f.label) {
+        return __generator(this, function (_c) {
+            switch (_c.label) {
                 case 0:
-                    _f.trys.push([0, 5, , 6]);
+                    _c.trys.push([0, 5, , 6]);
                     payload_1 = github.context
                         .payload;
                     githubToken = core.getInput("GITHUB_TOKEN");
                     octokit_1 = github.getOctokit(githubToken);
                     commentTemplate = core.getInput("comment-template");
                     labelTemplate = core.getInput("label-template") || null;
+                    skipLabelTemplate = core.getInput("skip-label") || null;
                     return [4 /*yield*/, octokit_1.repos.listReleases(__assign(__assign({}, github.context.repo), { per_page: 2 }))];
                 case 1:
-                    releases = (_f.sent()).data;
+                    releases = (_c.sent()).data;
                     if (releases.length < 2) {
                         if (!releases.length) {
                             core.error("no releases found");
@@ -111,23 +111,32 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                         core.info("first release");
                         return [2 /*return*/];
                     }
-                    _d = __read(releases, 2), currentRelease = _d[0], priorRelease = _d[1];
-                    return [4 /*yield*/, octokit_1.repos.compareCommits(__assign(__assign({}, github.context.repo), { base: priorRelease.tag_name, head: currentRelease.tag_name }))];
+                    _a = __read(releases, 2), currentRelease_1 = _a[0], priorRelease = _a[1];
+                    return [4 /*yield*/, octokit_1.repos.compareCommits(__assign(__assign({}, github.context.repo), { base: priorRelease.tag_name, head: currentRelease_1.tag_name }))];
                 case 2:
-                    commits = (_f.sent()).data.commits;
-                    core.info(priorRelease.tag_name + "..." + currentRelease.tag_name);
+                    commits = (_c.sent()).data.commits;
+                    core.info(priorRelease.tag_name + "..." + currentRelease_1.tag_name);
+                    releaseLabel = currentRelease_1.name || currentRelease_1.tag_name;
+                    comment = commentTemplate
+                        .trim()
+                        .replace(releaseLinkTemplateRegex, "[" + releaseLabel + "](" + currentRelease_1.html_url + ")")
+                        .replace(releaseNameTemplateRegex, currentRelease_1.name)
+                        .replace(releaseTagTemplateRegex, currentRelease_1.tag_name);
+                    parseLabels = function (rawInput) { var _a, _b, _c; return (_c = (_b = (_a = rawInput === null || rawInput === void 0 ? void 0 : rawInput.replace(releaseNameTemplateRegex, currentRelease_1.name)) === null || _a === void 0 ? void 0 : _a.replace(releaseTagTemplateRegex, currentRelease_1.tag_name)) === null || _b === void 0 ? void 0 : _b.split(",")) === null || _c === void 0 ? void 0 : _c.map(function (l) { return l.trim(); }).filter(function (l) { return l; }); };
+                    labels = parseLabels(labelTemplate);
+                    skipLabels_1 = parseLabels(skipLabelTemplate);
                     linkedIssuesPrs_2 = new Set();
                     return [4 /*yield*/, Promise.all(commits.map(function (commit) {
                             return (function () { return __awaiter(_this, void 0, void 0, function () {
-                                var query, response, html, _a, _b, match, _c, num, seen, associatedPRs, associatedPRs_1, associatedPRs_1_1, associatedPR, links, links_1, links_1_1, link;
-                                var e_2, _d, e_3, _e, e_4, _f;
-                                return __generator(this, function (_g) {
-                                    switch (_g.label) {
+                                var query, response, html, _a, _b, match, _c, num, seen, associatedPRs, _loop_1, associatedPRs_1, associatedPRs_1_1, associatedPR;
+                                var e_2, _d, e_3, _e;
+                                return __generator(this, function (_f) {
+                                    switch (_f.label) {
                                         case 0:
-                                            query = "\n            {\n              resource(url: \"" + payload_1.repository.html_url + "/commit/" + commit.sha + "\") {\n                ... on Commit {\n                  messageHeadlineHTML\n                  messageBodyHTML\n                  associatedPullRequests(first: 10) {\n                    pageInfo {\n                      hasNextPage\n                    }\n                    edges {\n                      node {\n                        bodyHTML\n                        number\n                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {\n                          pageInfo {\n                            hasNextPage\n                          }\n                          nodes {\n                            ... on ConnectedEvent {\n                              __typename\n                              isCrossRepository\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                            ... on DisconnectedEvent {\n                              __typename\n                              isCrossRepository\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          ";
+                                            query = "\n            {\n              resource(url: \"" + payload_1.repository.html_url + "/commit/" + commit.sha + "\") {\n                ... on Commit {\n                  messageHeadlineHTML\n                  messageBodyHTML\n                  associatedPullRequests(first: 10) {\n                    pageInfo {\n                      hasNextPage\n                    }\n                    edges {\n                      node {\n                        bodyHTML\n                        number\n                        labels(first: 10) {\n                          pageInfo {\n                            hasNextPage\n                          }\n                          nodes {\n                            name\n                          }\n                        }\n                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {\n                          pageInfo {\n                            hasNextPage\n                          }\n                          nodes {\n                            ... on ConnectedEvent {\n                              __typename\n                              isCrossRepository\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                            ... on DisconnectedEvent {\n                              __typename\n                              isCrossRepository\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          ";
                                             return [4 /*yield*/, octokit_1.graphql(query)];
                                         case 1:
-                                            response = _g.sent();
+                                            response = _f.sent();
                                             if (!response.resource) {
                                                 return [2 /*return*/];
                                             }
@@ -155,35 +164,53 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                                             }
                                             seen = new Set();
                                             associatedPRs = response.resource.associatedPullRequests.edges;
+                                            _loop_1 = function (associatedPR) {
+                                                var e_4, _a;
+                                                if (associatedPR.node.timelineItems.pageInfo.hasNextPage) {
+                                                    core.warning("Too many links for #" + associatedPR.node.number);
+                                                }
+                                                if (associatedPR.node.labels.pageInfo.hasNextPage) {
+                                                    core.warning("Too many labels for #" + associatedPR.node.number);
+                                                }
+                                                // a skip labels is present on this PR
+                                                if (skipLabels_1 === null || skipLabels_1 === void 0 ? void 0 : skipLabels_1.some(function (l) {
+                                                    return associatedPR.node.labels.nodes.some(function (_a) {
+                                                        var name = _a.name;
+                                                        return name === l;
+                                                    });
+                                                })) {
+                                                    return "continue";
+                                                }
+                                                linkedIssuesPrs_2.add("" + associatedPR.node.number);
+                                                // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
+                                                // ignore links that aren't part of this repo
+                                                var links = associatedPR.node.timelineItems.nodes
+                                                    .filter(function (node) { return !node.isCrossRepository; })
+                                                    .reverse();
+                                                try {
+                                                    for (var links_1 = (e_4 = void 0, __values(links)), links_1_1 = links_1.next(); !links_1_1.done; links_1_1 = links_1.next()) {
+                                                        var link = links_1_1.value;
+                                                        if (seen.has(link.subject.number)) {
+                                                            continue;
+                                                        }
+                                                        if (link.__typename == "ConnectedEvent") {
+                                                            linkedIssuesPrs_2.add("" + link.subject.number);
+                                                        }
+                                                        seen.add(link.subject.number);
+                                                    }
+                                                }
+                                                catch (e_4_1) { e_4 = { error: e_4_1 }; }
+                                                finally {
+                                                    try {
+                                                        if (links_1_1 && !links_1_1.done && (_a = links_1.return)) _a.call(links_1);
+                                                    }
+                                                    finally { if (e_4) throw e_4.error; }
+                                                }
+                                            };
                                             try {
                                                 for (associatedPRs_1 = __values(associatedPRs), associatedPRs_1_1 = associatedPRs_1.next(); !associatedPRs_1_1.done; associatedPRs_1_1 = associatedPRs_1.next()) {
                                                     associatedPR = associatedPRs_1_1.value;
-                                                    if (associatedPR.node.timelineItems.pageInfo.hasNextPage) {
-                                                        core.warning("Too many links for #" + associatedPR.node.number);
-                                                    }
-                                                    linkedIssuesPrs_2.add("" + associatedPR.node.number);
-                                                    links = associatedPR.node.timelineItems.nodes
-                                                        .filter(function (node) { return !node.isCrossRepository; })
-                                                        .reverse();
-                                                    try {
-                                                        for (links_1 = (e_4 = void 0, __values(links)), links_1_1 = links_1.next(); !links_1_1.done; links_1_1 = links_1.next()) {
-                                                            link = links_1_1.value;
-                                                            if (seen.has(link.subject.number)) {
-                                                                continue;
-                                                            }
-                                                            if (link.__typename == "ConnectedEvent") {
-                                                                linkedIssuesPrs_2.add("" + link.subject.number);
-                                                            }
-                                                            seen.add(link.subject.number);
-                                                        }
-                                                    }
-                                                    catch (e_4_1) { e_4 = { error: e_4_1 }; }
-                                                    finally {
-                                                        try {
-                                                            if (links_1_1 && !links_1_1.done && (_f = links_1.return)) _f.call(links_1);
-                                                        }
-                                                        finally { if (e_4) throw e_4.error; }
-                                                    }
+                                                    _loop_1(associatedPR);
                                                 }
                                             }
                                             catch (e_3_1) { e_3 = { error: e_3_1 }; }
@@ -199,14 +226,7 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                             }); })();
                         }))];
                 case 3:
-                    _f.sent();
-                    releaseLabel = currentRelease.name || currentRelease.tag_name;
-                    comment = commentTemplate
-                        .trim()
-                        .replace(releaseLinkTemplateRegex, "[" + releaseLabel + "](" + currentRelease.html_url + ")")
-                        .replace(releaseNameTemplateRegex, currentRelease.name)
-                        .replace(releaseTagTemplateRegex, currentRelease.tag_name);
-                    labels = (_c = (_b = (_a = labelTemplate === null || labelTemplate === void 0 ? void 0 : labelTemplate.replace(releaseNameTemplateRegex, currentRelease.name)) === null || _a === void 0 ? void 0 : _a.replace(releaseTagTemplateRegex, currentRelease.tag_name)) === null || _b === void 0 ? void 0 : _b.split(",")) === null || _c === void 0 ? void 0 : _c.map(function (l) { return l.trim(); }).filter(function (l) { return l; });
+                    _c.sent();
                     requests = [];
                     try {
                         for (linkedIssuesPrs_1 = __values(linkedIssuesPrs_2), linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next(); !linkedIssuesPrs_1_1.done; linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next()) {
@@ -228,16 +248,16 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                     catch (e_1_1) { e_1 = { error: e_1_1 }; }
                     finally {
                         try {
-                            if (linkedIssuesPrs_1_1 && !linkedIssuesPrs_1_1.done && (_e = linkedIssuesPrs_1.return)) _e.call(linkedIssuesPrs_1);
+                            if (linkedIssuesPrs_1_1 && !linkedIssuesPrs_1_1.done && (_b = linkedIssuesPrs_1.return)) _b.call(linkedIssuesPrs_1);
                         }
                         finally { if (e_1) throw e_1.error; }
                     }
                     return [4 /*yield*/, Promise.all(requests)];
                 case 4:
-                    _f.sent();
+                    _c.sent();
                     return [3 /*break*/, 6];
                 case 5:
-                    error_1 = _f.sent();
+                    error_1 = _c.sent();
                     core.error(error_1);
                     core.setFailed(error_1.message);
                     return [3 /*break*/, 6];

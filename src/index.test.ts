@@ -32,6 +32,7 @@ describe("tests", () => {
 
   let commentTempate: string = "";
   let labelTemplate: string | null = null;
+  const skipLabelTemplate: string | null = "skip,test";
 
   let simpleMockOctokit: any = {};
 
@@ -50,6 +51,9 @@ describe("tests", () => {
       }
       if (key == "label-template") {
         return labelTemplate;
+      }
+      if (key == "skip-label") {
+        return skipLabelTemplate;
       }
       fail(`Unexpected input key ${key}`);
     });
@@ -138,6 +142,10 @@ describe("tests", () => {
                     bodyHTML:
                       '<span class="issue-keyword tooltipped tooltipped-se" aria-label="This commit closes issue #4.">Closes</span> <span class="issue-keyword tooltipped tooltipped-se" aria-label="This commit closes issue #5.">Closes</span>',
                     number: 9,
+                    labels: {
+                      pageInfo: { hasNextPage: false },
+                      nodes: [{ name: "label1" }, { name: "label2" }],
+                    },
                     timelineItems: {
                       pageInfo: { hasNextPage: false },
                       nodes: [
@@ -160,6 +168,26 @@ describe("tests", () => {
                           isCrossRepository: false,
                           __typename: "ConnectedEvent",
                           subject: { number: 2 },
+                        },
+                      ],
+                    },
+                  },
+                },
+                {
+                  node: {
+                    bodyHTML: "",
+                    number: 42,
+                    labels: {
+                      pageInfo: { hasNextPage: false },
+                      nodes: [{ name: "label1" }, { name: "skip" }],
+                    },
+                    timelineItems: {
+                      pageInfo: { hasNextPage: false },
+                      nodes: [
+                        {
+                          isCrossRepository: true,
+                          __typename: "ConnectedEvent",
+                          subject: { number: 82 },
                         },
                       ],
                     },

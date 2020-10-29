@@ -17,6 +17,11 @@ inputs:
       Included in release {release_link}
   label-template:
     description: Add the given label. Multiple labels can be separated by commas.
+    required: false
+  skip-label:
+    description: Skip commenting if any of the given label are present. Multiple labels can be separated by commas.
+    required: false
+    default: "dependencies"
 runs:
   using: node12
   main: dst/index.js

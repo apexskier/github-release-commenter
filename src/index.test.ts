@@ -208,7 +208,7 @@ describe("tests", () => {
       require("./index");
     });
 
-    await new Promise((resolve) => setImmediate(() => resolve()));
+    await new Promise<void>((resolve) => setImmediate(() => resolve()));
 
     expect(mockOctokit).toMatchSnapshot();
   });
@@ -225,7 +225,7 @@ describe("tests", () => {
         require("./index");
       });
 
-      await new Promise((resolve) => setImmediate(() => resolve()));
+      await new Promise<void>((resolve) => setImmediate(() => resolve()));
 
       expect(github.getOctokit).toBeCalled();
       expect(mockOctokit.issues.createComment).not.toBeCalled();
@@ -238,7 +238,7 @@ describe("tests", () => {
         require("./index");
       });
 
-      await new Promise((resolve) => setImmediate(() => resolve()));
+      await new Promise<void>((resolve) => setImmediate(() => resolve()));
 
       expect(github.getOctokit).toBeCalled();
       expect(mockOctokit.issues.addLabels.mock.calls).toMatchSnapshot();

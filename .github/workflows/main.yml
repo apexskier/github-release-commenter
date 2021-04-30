@@ -51,7 +51,6 @@ jobs:
           && github.event_name == 'pull_request'
         with:
           default_author: github_actions
-          add: dst
           message: Fix lint errors and build
 
       - name: Ensure clean

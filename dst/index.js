@@ -62,9 +62,10 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
 };
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
@@ -122,7 +123,10 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                         .replace(releaseLinkTemplateRegex, "[" + releaseLabel + "](" + currentRelease_1.html_url + ")")
                         .replace(releaseNameTemplateRegex, currentRelease_1.name)
                         .replace(releaseTagTemplateRegex, currentRelease_1.tag_name);
-                    parseLabels = function (rawInput) { var _a, _b, _c; return (_c = (_b = (_a = rawInput === null || rawInput === void 0 ? void 0 : rawInput.replace(releaseNameTemplateRegex, currentRelease_1.name)) === null || _a === void 0 ? void 0 : _a.replace(releaseTagTemplateRegex, currentRelease_1.tag_name)) === null || _b === void 0 ? void 0 : _b.split(",")) === null || _c === void 0 ? void 0 : _c.map(function (l) { return l.trim(); }).filter(function (l) { return l; }); };
+                    parseLabels = function (rawInput) {
+                        var _a, _b, _c;
+                        return (_c = (_b = (_a = rawInput === null || rawInput === void 0 ? void 0 : rawInput.replace(releaseNameTemplateRegex, currentRelease_1.name)) === null || _a === void 0 ? void 0 : _a.replace(releaseTagTemplateRegex, currentRelease_1.tag_name)) === null || _b === void 0 ? void 0 : _b.split(",")) === null || _c === void 0 ? void 0 : _c.map(function (l) { return l.trim(); }).filter(function (l) { return l; });
+                    };
                     labels = parseLabels(labelTemplate);
                     skipLabels_1 = parseLabels(skipLabelTemplate);
                     linkedIssuesPrs_2 = new Set();
@@ -141,10 +145,10 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                                                 return [2 /*return*/];
                                             }
                                             core.info(JSON.stringify(response.resource, null, 2));
-                                            html = __spread([
+                                            html = __spreadArray([
                                                 response.resource.messageHeadlineHTML,
                                                 response.resource.messageBodyHTML
-                                            ], response.resource.associatedPullRequests.edges.map(function (pr) { return pr.node.bodyHTML; })).join(" ");
+                                            ], __read(response.resource.associatedPullRequests.edges.map(function (pr) { return pr.node.bodyHTML; }))).join(" ");
                                             try {
                                                 for (_a = __values(html.matchAll(closesMatcher)), _b = _a.next(); !_b.done; _b = _a.next()) {
                                                     match = _b.value;
@@ -165,7 +169,7 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                                             seen = new Set();
                                             associatedPRs = response.resource.associatedPullRequests.edges;
                                             _loop_1 = function (associatedPR) {
-                                                var e_4, _a;
+                                                var e_4, _g;
                                                 if (associatedPR.node.timelineItems.pageInfo.hasNextPage) {
                                                     core.warning("Too many links for #" + associatedPR.node.number);
                                                 }
@@ -202,7 +206,7 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                                                 catch (e_4_1) { e_4 = { error: e_4_1 }; }
                                                 finally {
                                                     try {
-                                                        if (links_1_1 && !links_1_1.done && (_a = links_1.return)) _a.call(links_1);
+                                                        if (links_1_1 && !links_1_1.done && (_g = links_1.return)) _g.call(links_1);
                                                     }
                                                     finally { if (e_4) throw e_4.error; }
                                                 }

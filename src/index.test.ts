@@ -208,7 +208,7 @@ describe("tests", () => {
       require("./index");
     });
 
-    await new Promise<void>((resolve) => setImmediate(() => resolve()));
+    await new Promise<void>(setImmediate);
 
     expect(mockOctokit).toMatchSnapshot();
   });

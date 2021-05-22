@@ -18,7 +18,7 @@ jobs:
           contains(github.event.pull_request.labels.*.name, 'dependencies')
           && github.event_name == 'pull_request'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GH_TOKEN }} # this token is supplied to allow dependabot access
           MERGE_METHOD: squash
           MERGE_LABELS: ""
           MERGE_FILTER_AUTHOR: dependabot[bot]

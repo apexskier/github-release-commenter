@@ -605,25 +605,14 @@
   dependencies:
     "@types/node" ">= 8"
 
-"@octokit/webhooks-methods@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@octokit/webhooks-methods/-/webhooks-methods-1.0.0.tgz#274799138725c89a3466e3af2026afe755f28c4b"
-  integrity sha512-pVceMQcj9SZ5p2RkemL0TuuPdGULNQj9F3Pq1cNM1xH+Kst1VNt0dj3PEGZRZV473njrDnYdi/OG4wWY9TLbbA==
-
-"@octokit/webhooks-types@3.75.0":
-  version "3.75.0"
-  resolved "https://registry.yarnpkg.com/@octokit/webhooks-types/-/webhooks-types-3.75.0.tgz#6301226143c9d0a96972b6c27b17d929a98ca5d3"
-  integrity sha512-vQkYwpCNX816UJiMssnEr4jWlVXmmd6kOpcmNdEQ6646Lh6kYeNBP6C2tVOAoCcs7/xK2sGf8qOJ5rT3QGL62w==
-
-"@octokit/webhooks@^9.6.1":
-  version "9.6.1"
-  resolved "https://registry.yarnpkg.com/@octokit/webhooks/-/webhooks-9.6.1.tgz#a7686edcf0c0a08257dd4590344e8c7a73fb6866"
-  integrity sha512-RIVpKDmNaCMgiSnCzDmw/GTOyLvpDHfNVxJvQWRG8EsPhTF1fXsaxHkyR1unX8v5xPr/cRjoIstEPSiXyd31Aw==
+"@octokit/webhooks@^7.21.0":
+  version "7.21.0"
+  resolved "https://registry.yarnpkg.com/@octokit/webhooks/-/webhooks-7.21.0.tgz#2aee3404aa311740a5f4ea37b070268752e21b02"
+  integrity sha512-Mj7Pa6JZgSjfzQfYF3Bf5KpyhzEBv4kHbj2EjCB/vMQiZCiiW30j5rS6t/d0ZN0FBrlSOuJIT+YU8IJt30VyWA==
   dependencies:
     "@octokit/request-error" "^2.0.2"
-    "@octokit/webhooks-methods" "^1.0.0"
-    "@octokit/webhooks-types" "3.75.0"
     aggregate-error "^3.1.0"
+    debug "^4.0.0"
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.1"
@@ -1399,7 +1388,7 @@ debug@^2.2.0, debug@^2.3.3:
   dependencies:
     ms "2.0.0"
 
-debug@^4.0.1, debug@^4.1.0, debug@^4.1.1:
+debug@^4.0.0, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.2.0.tgz#7f150f93920e94c58f5574c2fd01a3110effe7f1"
   integrity sha512-IX2ncY78vDTjZMFUdmsvIRFY2Cf4FnD0wRs+nQwJU8Lu99/tPFdb0VybiiMTPe3I6rQmwsqQqRBvxU+bZ/I8sg==
@@ -3379,10 +3368,10 @@ prelude-ls@~1.1.2:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
   integrity sha1-IZMqVJ9eUv/ZqCf1cOBL5iqX2lQ=
 
-prettier@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.3.0.tgz#b6a5bf1284026ae640f17f7ff5658a7567fc0d18"
-  integrity sha512-kXtO4s0Lz/DW/IJ9QdWhAf7/NmPWQXkFr/r/WkR3vyI+0v8amTDxiaQSLzs8NBlytfLWX/7uQUMIW677yLKl4w==
+prettier@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.2.1.tgz#795a1a78dd52f073da0cd42b21f9c91381923ff5"
+  integrity sha512-PqyhM2yCjg/oKkFPtTGUojv7gnZAoG80ttl45O6x2Ug/rMJw4wcc9k6aaf2hibP7BGVCCM33gZoGjyvt9mm16Q==
 
 pretty-format@^26.0.0, pretty-format@^26.6.2:
   version "26.6.2"

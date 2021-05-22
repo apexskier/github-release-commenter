@@ -87,7 +87,7 @@ var releaseNameTemplateRegex = /{release_name}/g;
 var releaseTagTemplateRegex = /{release_tag}/g;
 (function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var payload_1, githubToken, octokit_1, commentTemplate, labelTemplate, skipLabelTemplate, releases, _a, currentRelease_1, priorRelease, commits, releaseLabel, comment, parseLabels, labels, skipLabels_1, linkedIssuesPrs_2, requests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueStr, issueNumber, baseRequest, request, request, error_1;
+        var payload_1, githubToken, octokit_1, commentTemplate, labelTemplate, skipLabelTemplate, releases, _a, currentRelease_1, priorRelease, commits, releaseLabel_1, comment, parseLabels, labels, skipLabels_1, linkedIssuesPrs_2, requests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueStr, issueNumber, baseRequest, request, request, error_1;
         var e_1, _b;
         var _this = this;
         return __generator(this, function (_c) {
@@ -101,7 +101,7 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                     commentTemplate = core.getInput("comment-template");
                     labelTemplate = core.getInput("label-template") || null;
                     skipLabelTemplate = core.getInput("skip-label") || null;
-                    return [4 /*yield*/, octokit_1.repos.listReleases(__assign(__assign({}, github.context.repo), { per_page: 2 }))];
+                    return [4 /*yield*/, octokit_1.rest.repos.listReleases(__assign(__assign({}, github.context.repo), { per_page: 2 }))];
                 case 1:
                     releases = (_c.sent()).data;
                     if (releases.length < 2) {
@@ -113,19 +113,22 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                         return [2 /*return*/];
                     }
                     _a = __read(releases, 2), currentRelease_1 = _a[0], priorRelease = _a[1];
-                    return [4 /*yield*/, octokit_1.repos.compareCommits(__assign(__assign({}, github.context.repo), { base: priorRelease.tag_name, head: currentRelease_1.tag_name }))];
+                    return [4 /*yield*/, octokit_1.rest.repos.compareCommits(__assign(__assign({}, github.context.repo), { base: priorRelease.tag_name, head: currentRelease_1.tag_name }))];
                 case 2:
                     commits = (_c.sent()).data.commits;
                     core.info(priorRelease.tag_name + "..." + currentRelease_1.tag_name);
-                    releaseLabel = currentRelease_1.name || currentRelease_1.tag_name;
+                    if (!currentRelease_1.name) {
+                        core.info("current release has no name, will fall back to the tag name");
+                    }
+                    releaseLabel_1 = currentRelease_1.name || currentRelease_1.tag_name;
                     comment = commentTemplate
                         .trim()
-                        .replace(releaseLinkTemplateRegex, "[" + releaseLabel + "](" + currentRelease_1.html_url + ")")
-                        .replace(releaseNameTemplateRegex, currentRelease_1.name)
+                        .replace(releaseLinkTemplateRegex, "[" + releaseLabel_1 + "](" + currentRelease_1.html_url + ")")
+                        .replace(releaseNameTemplateRegex, releaseLabel_1)
                         .replace(releaseTagTemplateRegex, currentRelease_1.tag_name);
                     parseLabels = function (rawInput) {
                         var _a, _b, _c;
-                        return (_c = (_b = (_a = rawInput === null || rawInput === void 0 ? void 0 : rawInput.replace(releaseNameTemplateRegex, currentRelease_1.name)) === null || _a === void 0 ? void 0 : _a.replace(releaseTagTemplateRegex, currentRelease_1.tag_name)) === null || _b === void 0 ? void 0 : _b.split(",")) === null || _c === void 0 ? void 0 : _c.map(function (l) { return l.trim(); }).filter(function (l) { return l; });
+                        return (_c = (_b = (_a = rawInput === null || rawInput === void 0 ? void 0 : rawInput.replace(releaseNameTemplateRegex, releaseLabel_1)) === null || _a === void 0 ? void 0 : _a.replace(releaseTagTemplateRegex, currentRelease_1.tag_name)) === null || _b === void 0 ? void 0 : _b.split(",")) === null || _c === void 0 ? void 0 : _c.map(function (l) { return l.trim(); }).filter(function (l) { return l; });
                     };
                     labels = parseLabels(labelTemplate);
                     skipLabels_1 = parseLabels(skipLabelTemplate);
@@ -240,12 +243,12 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                             if (comment) {
                                 request = __assign(__assign({}, baseRequest), { body: comment });
                                 core.info(JSON.stringify(request, null, 2));
-                                requests.push(octokit_1.issues.createComment(request));
+                                requests.push(octokit_1.rest.issues.createComment(request));
                             }
                             if (labels) {
                                 request = __assign(__assign({}, baseRequest), { labels: labels });
                                 core.info(JSON.stringify(request, null, 2));
-                                requests.push(octokit_1.issues.addLabels(request));
+                                requests.push(octokit_1.rest.issues.addLabels(request));
                             }
                         }
                     }

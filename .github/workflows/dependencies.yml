@@ -21,7 +21,7 @@ jobs:
           MERGE_FORKS: false
           MERGE_DELETE_BRANCH: true
 
-  build:
+  build-and-update:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' }}
 

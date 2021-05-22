@@ -605,6 +605,11 @@
   dependencies:
     "@types/node" ">= 8"
 
+"@octokit/webhooks-types@^3.75.0":
+  version "3.75.0"
+  resolved "https://registry.yarnpkg.com/@octokit/webhooks-types/-/webhooks-types-3.75.0.tgz#6301226143c9d0a96972b6c27b17d929a98ca5d3"
+  integrity sha512-vQkYwpCNX816UJiMssnEr4jWlVXmmd6kOpcmNdEQ6646Lh6kYeNBP6C2tVOAoCcs7/xK2sGf8qOJ5rT3QGL62w==
+
 "@sinonjs/commons@^1.7.0":
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.8.1.tgz#e7df00f98a203324f6dc7cc606cad9d4a8ab2217"

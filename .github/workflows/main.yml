@@ -7,32 +7,11 @@ on:
   pull_request:
 
 jobs:
-  auto-merge:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Auto merge (dependency updates)
-        uses: pascalgn/automerge-action@v0.13.1
-        if: |
-          contains(github.event.pull_request.labels.*.name, 'dependencies')
-          && github.event_name == 'pull_request'
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_GH_TOKEN }} # this token is supplied to allow dependabot access
-          MERGE_METHOD: squash
-          MERGE_LABELS: ""
-          MERGE_FILTER_AUTHOR: dependabot[bot]
-          MERGE_FORKS: false
-          MERGE_DELETE_BRANCH: true
-
   build:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          # use a separate token to allow the push to trigger builds
-          token: ${{ secrets.RELEASE_GH_TOKEN }}
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v1
@@ -46,31 +25,13 @@ jobs:
         run: yarn clean
 
       - name: Lint
-        if: |
-          !contains(github.event.pull_request.labels.*.name, 'dependencies')
-          || github.event_name != 'pull_request'
         run: yarn lint
-
-      - name: Fix (dependency updates)
-        if: |
-          contains(github.event.pull_request.labels.*.name, 'dependencies')
-          && github.event_name == 'pull_request'
-        run: yarn fix
 
       - name: Test
         run: yarn test
 
       - name: Build
         run: yarn build
-
-      - name: Add and commit (dependency updates)
-        uses: EndBug/add-and-commit@v7.2.0
-        if: |
-          contains(github.event.pull_request.labels.*.name, 'dependencies')
-          && github.event_name == 'pull_request'
-        with:
-          default_author: github_actions
-          message: Fix lint errors and build
 
       - name: Ensure clean
         run: |

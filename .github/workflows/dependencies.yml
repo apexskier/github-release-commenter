@@ -8,7 +8,7 @@ on:
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-and-update
 
     steps:
       - name: Auto merge (dependency updates)

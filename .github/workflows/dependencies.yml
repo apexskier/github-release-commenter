@@ -13,9 +13,6 @@ jobs:
     steps:
       - name: Auto merge (dependency updates)
         uses: pascalgn/automerge-action@v0.13.1
-        if: |
-          contains(github.event.pull_request.labels.*.name, 'dependencies')
-          && github.event_name == 'pull_request'
         env:
           GITHUB_TOKEN: ${{ secrets.DEPENDABOT_GITHUB_TOKEN }}
           MERGE_METHOD: squash

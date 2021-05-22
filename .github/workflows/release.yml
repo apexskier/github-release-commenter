@@ -16,6 +16,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           comment-template: Thanks! Release {release_link} addresses this.
           label-template: ":dart: landed,release-{release_tag}"
+          skip-label: dependencies
 
       - uses: apexskier/github-semver-parse@v1
         id: semver

@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import type * as Webhooks from "@octokit/webhooks";
+import type * as Webhooks from "@octokit/webhooks-types";
 
 const closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+)\."/g;
 
@@ -11,7 +11,7 @@ const releaseTagTemplateRegex = /{release_tag}/g;
 (async function main() {
   try {
     const payload = github.context
-      .payload as Webhooks.EventPayloads.WebhookPayloadRelease;
+      .payload as Webhooks.EventPayloadMap["release"];
 
     const githubToken = core.getInput("GITHUB_TOKEN");
     const octokit = github.getOctokit(githubToken);

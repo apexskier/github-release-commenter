@@ -21,7 +21,7 @@ const releaseTagTemplateRegex = /{release_tag}/g;
     const skipLabelTemplate = core.getInput("skip-label") || null;
 
     // watch out, this is returning deleted releases for some reason
-    const { data: releases } = await octokit.repos.listReleases({
+    const { data: releases } = await octokit.rest.repos.listReleases({
       ...github.context.repo,
       per_page: 2,
     });
@@ -40,7 +40,7 @@ const releaseTagTemplateRegex = /{release_tag}/g;
 
     const {
       data: { commits },
-    } = await octokit.repos.compareCommits({
+    } = await octokit.rest.repos.compareCommits({
       ...github.context.repo,
       base: priorRelease.tag_name,
       head: currentRelease.tag_name,
@@ -48,6 +48,9 @@ const releaseTagTemplateRegex = /{release_tag}/g;
 
     core.info(`${priorRelease.tag_name}...${currentRelease.tag_name}`);
 
+    if (!currentRelease.name) {
+      core.info("current release has no name, will fall back to the tag name");
+    }
     const releaseLabel = currentRelease.name || currentRelease.tag_name;
 
     const comment = commentTemplate
@@ -56,11 +59,11 @@ const releaseTagTemplateRegex = /{release_tag}/g;
         releaseLinkTemplateRegex,
         `[${releaseLabel}](${currentRelease.html_url})`
       )
-      .replace(releaseNameTemplateRegex, currentRelease.name)
+      .replace(releaseNameTemplateRegex, releaseLabel)
       .replace(releaseTagTemplateRegex, currentRelease.tag_name);
     const parseLabels = (rawInput: string | null) =>
       rawInput
-        ?.replace(releaseNameTemplateRegex, currentRelease.name)
+        ?.replace(releaseNameTemplateRegex, releaseLabel)
         ?.replace(releaseTagTemplateRegex, currentRelease.tag_name)
         ?.split(",")
         ?.map((l) => l.trim())
@@ -231,7 +234,7 @@ const releaseTagTemplateRegex = /{release_tag}/g;
           body: comment,
         };
         core.info(JSON.stringify(request, null, 2));
-        requests.push(octokit.issues.createComment(request));
+        requests.push(octokit.rest.issues.createComment(request));
       }
       if (labels) {
         const request = {
@@ -239,7 +242,7 @@ const releaseTagTemplateRegex = /{release_tag}/g;
           labels,
         };
         core.info(JSON.stringify(request, null, 2));
-        requests.push(octokit.issues.addLabels(request));
+        requests.push(octokit.rest.issues.addLabels(request));
       }
     }
     await Promise.all(requests);

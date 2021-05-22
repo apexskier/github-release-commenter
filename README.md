@@ -48,6 +48,7 @@ These are some known limitations of this action. I'd like to try to address them
 - Non-linear releases aren't supported. For example, releasing a patch to a prior major release after a new major release has been bumped.
 - Non-sequential releases aren't supported. For example, if you release multiple prereleases between two official releases, this will only create a comment for the first prerelease in which a fix is released, not the final release.
 - The first release for a project will be ignored. This is intentional, as the use case is unlikely. Most projects will either have several alphas that don't need release comments, or won't use issues/PRs for the first commit.
+- If a large number of things are commented on, you may see the error `Error: You have triggered an abuse detection mechanism. Please wait a few minutes before you try again.`. Consider using the `skip-label` input to reduce your load on the GitHub API.
 
 ## Versions
 

@@ -153,116 +153,118 @@ Object {
       },
     ],
   },
-  "issues": Object {
-    "addLabels": [MockFunction],
-    "createComment": [MockFunction] {
-      "calls": Array [
-        Array [
+  "rest": Object {
+    "issues": Object {
+      "addLabels": [MockFunction],
+      "createComment": [MockFunction] {
+        "calls": Array [
+          Array [
+            Object {
+              "body": "Included in release [current_tag_name](http://current_release)",
+              "issue_number": 3,
+            },
+          ],
+          Array [
+            Object {
+              "body": "Included in release [current_tag_name](http://current_release)",
+              "issue_number": 123,
+            },
+          ],
+          Array [
+            Object {
+              "body": "Included in release [current_tag_name](http://current_release)",
+              "issue_number": 7,
+            },
+          ],
+          Array [
+            Object {
+              "body": "Included in release [current_tag_name](http://current_release)",
+              "issue_number": 4,
+            },
+          ],
+          Array [
+            Object {
+              "body": "Included in release [current_tag_name](http://current_release)",
+              "issue_number": 5,
+            },
+          ],
+          Array [
+            Object {
+              "body": "Included in release [current_tag_name](http://current_release)",
+              "issue_number": 9,
+            },
+          ],
+          Array [
+            Object {
+              "body": "Included in release [current_tag_name](http://current_release)",
+              "issue_number": 2,
+            },
+          ],
+        ],
+        "results": Array [
           Object {
-            "body": "Included in release [current_tag_name](http://current_release)",
-            "issue_number": 3,
+            "type": "return",
+            "value": Promise {},
+          },
+          Object {
+            "type": "return",
+            "value": Promise {},
+          },
+          Object {
+            "type": "return",
+            "value": Promise {},
+          },
+          Object {
+            "type": "return",
+            "value": Promise {},
+          },
+          Object {
+            "type": "return",
+            "value": Promise {},
+          },
+          Object {
+            "type": "return",
+            "value": Promise {},
+          },
+          Object {
+            "type": "return",
+            "value": Promise {},
           },
         ],
-        Array [
-          Object {
-            "body": "Included in release [current_tag_name](http://current_release)",
-            "issue_number": 123,
-          },
-        ],
-        Array [
-          Object {
-            "body": "Included in release [current_tag_name](http://current_release)",
-            "issue_number": 7,
-          },
-        ],
-        Array [
-          Object {
-            "body": "Included in release [current_tag_name](http://current_release)",
-            "issue_number": 4,
-          },
-        ],
-        Array [
-          Object {
-            "body": "Included in release [current_tag_name](http://current_release)",
-            "issue_number": 5,
-          },
-        ],
-        Array [
-          Object {
-            "body": "Included in release [current_tag_name](http://current_release)",
-            "issue_number": 9,
-          },
-        ],
-        Array [
-          Object {
-            "body": "Included in release [current_tag_name](http://current_release)",
-            "issue_number": 2,
-          },
-        ],
-      ],
-      "results": Array [
-        Object {
-          "type": "return",
-          "value": Promise {},
-        },
-        Object {
-          "type": "return",
-          "value": Promise {},
-        },
-        Object {
-          "type": "return",
-          "value": Promise {},
-        },
-        Object {
-          "type": "return",
-          "value": Promise {},
-        },
-        Object {
-          "type": "return",
-          "value": Promise {},
-        },
-        Object {
-          "type": "return",
-          "value": Promise {},
-        },
-        Object {
-          "type": "return",
-          "value": Promise {},
-        },
-      ],
+      },
     },
-  },
-  "repos": Object {
-    "compareCommits": [MockFunction] {
-      "calls": Array [
-        Array [
+    "repos": Object {
+      "compareCommits": [MockFunction] {
+        "calls": Array [
+          Array [
+            Object {
+              "base": "prior_tag_name",
+              "head": "current_tag_name",
+            },
+          ],
+        ],
+        "results": Array [
           Object {
-            "base": "prior_tag_name",
-            "head": "current_tag_name",
+            "type": "return",
+            "value": Promise {},
           },
         ],
-      ],
-      "results": Array [
-        Object {
-          "type": "return",
-          "value": Promise {},
-        },
-      ],
-    },
-    "listReleases": [MockFunction] {
-      "calls": Array [
-        Array [
+      },
+      "listReleases": [MockFunction] {
+        "calls": Array [
+          Array [
+            Object {
+              "per_page": 2,
+            },
+          ],
+        ],
+        "results": Array [
           Object {
-            "per_page": 2,
+            "type": "return",
+            "value": Promise {},
           },
         ],
-      ],
-      "results": Array [
-        Object {
-          "type": "return",
-          "value": Promise {},
-        },
-      ],
+      },
     },
   },
 }

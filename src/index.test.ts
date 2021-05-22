@@ -61,27 +61,33 @@ describe("tests", () => {
     commentTempate = "Included in release {release_link}";
     labelTemplate = null;
     simpleMockOctokit = {
-      repos: {
-        listReleases: jest.fn(() =>
-          Promise.resolve({
-            data: [
-              {
-                name: "Release Name",
-                tag_name: "current_tag_name",
-                html_url: "http://current_release",
-              },
-              {
-                tag_name: "prior_tag_name",
-                html_url: "http://prior_release",
-              },
-            ],
-          })
-        ),
-        compareCommits: jest.fn(() =>
-          Promise.resolve({
-            data: { commits: [{ sha: "SHA1" }] },
-          })
-        ),
+      rest: {
+        issues: {
+          createComment: jest.fn(() => Promise.resolve()),
+          addLabels: jest.fn(() => Promise.resolve()),
+        },
+        repos: {
+          listReleases: jest.fn(() =>
+            Promise.resolve({
+              data: [
+                {
+                  name: "Release Name",
+                  tag_name: "current_tag_name",
+                  html_url: "http://current_release",
+                },
+                {
+                  tag_name: "prior_tag_name",
+                  html_url: "http://prior_release",
+                },
+              ],
+            })
+          ),
+          compareCommits: jest.fn(() =>
+            Promise.resolve({
+              data: { commits: [{ sha: "SHA1" }] },
+            })
+          ),
+        },
       },
       graphql: jest.fn(() =>
         Promise.resolve({
@@ -96,36 +102,44 @@ describe("tests", () => {
           },
         })
       ),
-      issues: {
-        createComment: jest.fn(() => Promise.resolve()),
-        addLabels: jest.fn(() => Promise.resolve()),
-      },
     };
+  });
+
+  afterEach(() => {
+    expect(core.error).not.toBeCalled();
+    expect(core.warning).not.toBeCalled();
+    expect(core.setFailed).not.toBeCalled();
   });
 
   test("main test", async () => {
     mockOctokit = {
       ...simpleMockOctokit,
-      repos: {
-        listReleases: jest.fn(() =>
-          Promise.resolve({
-            data: [
-              {
-                tag_name: "current_tag_name",
-                html_url: "http://current_release",
-              },
-              {
-                tag_name: "prior_tag_name",
-                html_url: "http://prior_release",
-              },
-            ],
-          })
-        ),
-        compareCommits: jest.fn(() =>
-          Promise.resolve({
-            data: { commits: [{ sha: "SHA1" }, { sha: "SHA2" }] },
-          })
-        ),
+      rest: {
+        issues: {
+          createComment: jest.fn(() => Promise.resolve()),
+          addLabels: jest.fn(() => Promise.resolve()),
+        },
+        repos: {
+          listReleases: jest.fn(() =>
+            Promise.resolve({
+              data: [
+                {
+                  tag_name: "current_tag_name",
+                  html_url: "http://current_release",
+                },
+                {
+                  tag_name: "prior_tag_name",
+                  html_url: "http://prior_release",
+                },
+              ],
+            })
+          ),
+          compareCommits: jest.fn(() =>
+            Promise.resolve({
+              data: { commits: [{ sha: "SHA1" }, { sha: "SHA2" }] },
+            })
+          ),
+        },
       },
       graphql: jest.fn(() =>
         Promise.resolve({
@@ -198,10 +212,6 @@ describe("tests", () => {
           },
         })
       ),
-      issues: {
-        createComment: jest.fn(() => Promise.resolve()),
-        addLabels: jest.fn(() => Promise.resolve()),
-      },
     };
 
     jest.isolateModules(() => {
@@ -228,7 +238,7 @@ describe("tests", () => {
       await new Promise<void>((resolve) => setImmediate(() => resolve()));
 
       expect(github.getOctokit).toBeCalled();
-      expect(mockOctokit.issues.createComment).not.toBeCalled();
+      expect(mockOctokit.rest.issues.createComment).not.toBeCalled();
     });
 
     it("can apply labels", async () => {
@@ -241,7 +251,7 @@ describe("tests", () => {
       await new Promise<void>((resolve) => setImmediate(() => resolve()));
 
       expect(github.getOctokit).toBeCalled();
-      expect(mockOctokit.issues.addLabels.mock.calls).toMatchSnapshot();
+      expect(mockOctokit.rest.issues.addLabels.mock.calls).toMatchSnapshot();
     });
   });
 });

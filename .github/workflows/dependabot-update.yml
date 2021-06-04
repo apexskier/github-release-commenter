@@ -1,4 +1,4 @@
-name: Dependabot Update
+name: Dependabot update
 
 on:
   pull_request_target:
@@ -14,6 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
+          # use a separate token to allow the push to trigger builds
+          token: ${{ secrets.DEPENDABOT_GITHUB_TOKEN }}
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup Node.js environment

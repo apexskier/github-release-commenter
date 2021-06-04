@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Auto merge (dependency updates)
-        uses: pascalgn/automerge-action@v0.13.1
+        uses: pascalgn/automerge-action@v0.14.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MERGE_METHOD: squash

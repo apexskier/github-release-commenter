@@ -2,7 +2,8 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import type * as Webhooks from "@octokit/webhooks-types";
 
-const closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+)\."/g;
+const closesMatcher =
+  /aria-label="This (?:commit|pull request) closes issue #(\d+)\."/g;
 
 const releaseLinkTemplateRegex = /{release_link}/g;
 const releaseNameTemplateRegex = /{release_name}/g;

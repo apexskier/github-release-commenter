@@ -1,13 +1,19 @@
 name: Dependabot update
 
 on:
-  pull_request_target:
-    branches:
-      - main
+  workflow_run:
+    workflows: [CI]
+    branches-ignore: [main]
+    types: [completed]
 
 jobs:
   build-and-update:
-    if: ${{ github.actor == 'dependabot[bot]' }}
+    if: >
+      ${{
+        github.actor == 'dependabot[bot]' &&
+        github.event.workflow_run.event == 'pull_request' &&
+        github.event.workflow_run.conclusion == 'failure'
+      }}
     runs-on: ubuntu-latest
     environment: dependabot_update
 

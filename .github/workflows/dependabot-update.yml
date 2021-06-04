@@ -7,14 +7,14 @@ on:
 
 jobs:
   build-and-update:
-    runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    environment: dependabot_update
 
     steps:
       - uses: actions/checkout@v2
         with:
-          # use a separate token to allow the push to trigger builds
-          token: ${{ secrets.DEPENDABOT_GITHUB_TOKEN }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v1

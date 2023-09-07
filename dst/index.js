@@ -25,7 +25,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -62,10 +62,14 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
@@ -85,9 +89,11 @@ var closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+
 var releaseLinkTemplateRegex = /{release_link}/g;
 var releaseNameTemplateRegex = /{release_name}/g;
 var releaseTagTemplateRegex = /{release_tag}/g;
+var authorTemplateRegex = /{author}/g;
+var titleTemplateRegex = /{title}/g;
 (function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var payload_1, githubToken, octokit_1, commentTemplate, labelTemplate, skipLabelTemplate, releases, _a, currentRelease_1, priorRelease, commits, releaseLabel_1, comment, parseLabels, labels, skipLabels_1, linkedIssuesPrs_2, requests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueStr, issueNumber, baseRequest, request, request, error_1;
+        var payload_1, githubToken, octokit_1, commentTemplate, labelTemplate, skipLabelTemplate, releases, _a, currentRelease_1, priorRelease, commits, releaseLabel_1, comment, parseLabels, labels, skipLabels_1, linkedIssuesPrs_2, requests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issuePr, issueNumber, baseRequest, finalComment, request, request, error_1;
         var e_1, _b;
         var _this = this;
         return __generator(this, function (_c) {
@@ -116,14 +122,14 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                     return [4 /*yield*/, octokit_1.rest.repos.compareCommits(__assign(__assign({}, github.context.repo), { base: priorRelease.tag_name, head: currentRelease_1.tag_name }))];
                 case 2:
                     commits = (_c.sent()).data.commits;
-                    core.info(priorRelease.tag_name + "..." + currentRelease_1.tag_name);
+                    core.info("".concat(priorRelease.tag_name, "...").concat(currentRelease_1.tag_name));
                     if (!currentRelease_1.name) {
                         core.info("current release has no name, will fall back to the tag name");
                     }
                     releaseLabel_1 = currentRelease_1.name || currentRelease_1.tag_name;
                     comment = commentTemplate
                         .trim()
-                        .replace(releaseLinkTemplateRegex, "[" + releaseLabel_1 + "](" + currentRelease_1.html_url + ")")
+                        .replace(releaseLinkTemplateRegex, "[".concat(releaseLabel_1, "](").concat(currentRelease_1.html_url, ")"))
                         .replace(releaseNameTemplateRegex, releaseLabel_1)
                         .replace(releaseTagTemplateRegex, currentRelease_1.tag_name);
                     parseLabels = function (rawInput) {
@@ -135,12 +141,12 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                     linkedIssuesPrs_2 = new Set();
                     return [4 /*yield*/, Promise.all(commits.map(function (commit) {
                             return (function () { return __awaiter(_this, void 0, void 0, function () {
-                                var query, response, html, _a, _b, match, _c, num, seen, associatedPRs, _loop_1, associatedPRs_1, associatedPRs_1_1, associatedPR;
+                                var query, response, html, _a, _b, match, _c, num, commit_1, seen, associatedPRs, _loop_1, associatedPRs_1, associatedPRs_1_1, associatedPR;
                                 var e_2, _d, e_3, _e;
                                 return __generator(this, function (_f) {
                                     switch (_f.label) {
                                         case 0:
-                                            query = "\n            {\n              resource(url: \"" + payload_1.repository.html_url + "/commit/" + commit.sha + "\") {\n                ... on Commit {\n                  messageHeadlineHTML\n                  messageBodyHTML\n                  associatedPullRequests(first: 10) {\n                    pageInfo {\n                      hasNextPage\n                    }\n                    edges {\n                      node {\n                        bodyHTML\n                        number\n                        labels(first: 10) {\n                          pageInfo {\n                            hasNextPage\n                          }\n                          nodes {\n                            name\n                          }\n                        }\n                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {\n                          pageInfo {\n                            hasNextPage\n                          }\n                          nodes {\n                            ... on ConnectedEvent {\n                              __typename\n                              isCrossRepository\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                            ... on DisconnectedEvent {\n                              __typename\n                              isCrossRepository\n                              subject {\n                                ... on Issue {\n                                  number\n                                }\n                              }\n                            }\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          ";
+                                            query = "\n            {\n              resource(url: \"".concat(payload_1.repository.html_url, "/commit/").concat(commit.sha, "\") {\n                ... on Commit {\n                  messageHeadlineHTML\n                  messageBodyHTML\n                  associatedPullRequests(first: 10) {\n                    pageInfo {\n                      hasNextPage\n                    }\n                    edges {\n                      node {\n                        title\n                        author {\n                          login\n                        }\n                        bodyHTML\n                        number\n                        labels(first: 10) {\n                          pageInfo {\n                            hasNextPage\n                          }\n                          nodes {\n                            name\n                          }\n                        }\n                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 100) {\n                          pageInfo {\n                            hasNextPage\n                          }\n                          nodes {\n                            ... on ConnectedEvent {\n                              __typename\n                              isCrossRepository\n                              subject {\n                                ... on Issue {\n                                  number\n                                  title\n                                  author {\n                                    login\n                                  }\n                                }\n                              }\n                            }\n                            ... on DisconnectedEvent {\n                              __typename\n                              isCrossRepository\n                              subject {\n                                ... on Issue {\n                                  number\n                                  title\n                                  author {\n                                    login\n                                  }\n                                }\n                              }\n                            }\n                          }\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          ");
                                             return [4 /*yield*/, octokit_1.graphql(query)];
                                         case 1:
                                             response = _f.sent();
@@ -151,12 +157,17 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                                             html = __spreadArray([
                                                 response.resource.messageHeadlineHTML,
                                                 response.resource.messageBodyHTML
-                                            ], __read(response.resource.associatedPullRequests.edges.map(function (pr) { return pr.node.bodyHTML; }))).join(" ");
+                                            ], __read(response.resource.associatedPullRequests.edges.map(function (pr) { return pr.node.bodyHTML; })), false).join(" ");
                                             try {
                                                 for (_a = __values(html.matchAll(closesMatcher)), _b = _a.next(); !_b.done; _b = _a.next()) {
                                                     match = _b.value;
                                                     _c = __read(match, 2), num = _c[1];
-                                                    linkedIssuesPrs_2.add(num);
+                                                    commit_1 = {
+                                                        number: parseInt(num),
+                                                        title: "N/A",
+                                                        author: "N/A",
+                                                    };
+                                                    linkedIssuesPrs_2.add(commit_1);
                                                 }
                                             }
                                             catch (e_2_1) { e_2 = { error: e_2_1 }; }
@@ -167,17 +178,17 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                                                 finally { if (e_2) throw e_2.error; }
                                             }
                                             if (response.resource.associatedPullRequests.pageInfo.hasNextPage) {
-                                                core.warning("Too many PRs associated with " + commit.sha);
+                                                core.warning("Too many PRs associated with ".concat(commit.sha));
                                             }
                                             seen = new Set();
                                             associatedPRs = response.resource.associatedPullRequests.edges;
                                             _loop_1 = function (associatedPR) {
                                                 var e_4, _g;
                                                 if (associatedPR.node.timelineItems.pageInfo.hasNextPage) {
-                                                    core.warning("Too many links for #" + associatedPR.node.number);
+                                                    core.warning("Too many links for #".concat(associatedPR.node.number));
                                                 }
                                                 if (associatedPR.node.labels.pageInfo.hasNextPage) {
-                                                    core.warning("Too many labels for #" + associatedPR.node.number);
+                                                    core.warning("Too many labels for #".concat(associatedPR.node.number));
                                                 }
                                                 // a skip labels is present on this PR
                                                 if (skipLabels_1 === null || skipLabels_1 === void 0 ? void 0 : skipLabels_1.some(function (l) {
@@ -188,7 +199,12 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                                                 })) {
                                                     return "continue";
                                                 }
-                                                linkedIssuesPrs_2.add("" + associatedPR.node.number);
+                                                var pr = {
+                                                    number: associatedPR.node.number,
+                                                    title: associatedPR.node.title,
+                                                    author: associatedPR.node.author.login,
+                                                };
+                                                linkedIssuesPrs_2.add(pr);
                                                 // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
                                                 // ignore links that aren't part of this repo
                                                 var links = associatedPR.node.timelineItems.nodes
@@ -201,7 +217,12 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                                                             continue;
                                                         }
                                                         if (link.__typename == "ConnectedEvent") {
-                                                            linkedIssuesPrs_2.add("" + link.subject.number);
+                                                            var event = {
+                                                                number: link.subject.number,
+                                                                title: link.subject.title,
+                                                                author: link.subject.author.login,
+                                                            };
+                                                            linkedIssuesPrs_2.add(event);
                                                         }
                                                         seen.add(link.subject.number);
                                                     }
@@ -237,11 +258,14 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                     requests = [];
                     try {
                         for (linkedIssuesPrs_1 = __values(linkedIssuesPrs_2), linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next(); !linkedIssuesPrs_1_1.done; linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next()) {
-                            issueStr = linkedIssuesPrs_1_1.value;
-                            issueNumber = parseInt(issueStr);
+                            issuePr = linkedIssuesPrs_1_1.value;
+                            issueNumber = issuePr.number;
                             baseRequest = __assign(__assign({}, github.context.repo), { issue_number: issueNumber });
                             if (comment) {
-                                request = __assign(__assign({}, baseRequest), { body: comment });
+                                finalComment = comment
+                                    .replace(authorTemplateRegex, issuePr.author)
+                                    .replace(titleTemplateRegex, issuePr.title);
+                                request = __assign(__assign({}, baseRequest), { body: finalComment });
                                 core.info(JSON.stringify(request, null, 2));
                                 requests.push(octokit_1.rest.issues.createComment(request));
                             }

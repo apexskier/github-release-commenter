@@ -89,8 +89,8 @@ var closesMatcher = /aria-label="This (?:commit|pull request) closes issue #(\d+
 var releaseLinkTemplateRegex = /{release_link}/g;
 var releaseNameTemplateRegex = /{release_name}/g;
 var releaseTagTemplateRegex = /{release_tag}/g;
-var prAuthorTemplateRegex = /{pr_author}/g;
-var prTitleTemplateRegex = /{pr_title}/g;
+var authorTemplateRegex = /{author}/g;
+var titleTemplateRegex = /{title}/g;
 (function main() {
     return __awaiter(this, void 0, void 0, function () {
         var payload_1, githubToken, octokit_1, commentTemplate, labelTemplate, skipLabelTemplate, releases, _a, currentRelease_1, priorRelease, commits, releaseLabel_1, comment, parseLabels, labels, skipLabels_1, linkedIssuesPrs_2, requests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issuePr, issueNumber, baseRequest, finalComment, request, request, error_1;
@@ -263,8 +263,8 @@ var prTitleTemplateRegex = /{pr_title}/g;
                             baseRequest = __assign(__assign({}, github.context.repo), { issue_number: issueNumber });
                             if (comment) {
                                 finalComment = comment
-                                    .replace(prAuthorTemplateRegex, issuePr.author)
-                                    .replace(prTitleTemplateRegex, issuePr.title);
+                                    .replace(authorTemplateRegex, issuePr.author)
+                                    .replace(titleTemplateRegex, issuePr.title);
                                 request = __assign(__assign({}, baseRequest), { body: finalComment });
                                 core.info(JSON.stringify(request, null, 2));
                                 requests.push(octokit_1.rest.issues.createComment(request));

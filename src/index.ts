@@ -8,8 +8,8 @@ const closesMatcher =
 const releaseLinkTemplateRegex = /{release_link}/g;
 const releaseNameTemplateRegex = /{release_name}/g;
 const releaseTagTemplateRegex = /{release_tag}/g;
-const prAuthorTemplateRegex = /{pr_author}/g;
-const prTitleTemplateRegex = /{pr_title}/g;
+const authorTemplateRegex = /{author}/g;
+const titleTemplateRegex = /{title}/g;
 
 (async function main() {
   try {
@@ -276,8 +276,8 @@ const prTitleTemplateRegex = /{pr_title}/g;
       if (comment) {
         // replace author and title variables
         const finalComment = comment
-          .replace(prAuthorTemplateRegex, issuePr.author)
-          .replace(prTitleTemplateRegex, issuePr.title);
+          .replace(authorTemplateRegex, issuePr.author)
+          .replace(titleTemplateRegex, issuePr.title);
         
         const request = {
           ...baseRequest,

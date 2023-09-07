@@ -14,7 +14,7 @@ A GitHub personal access token with repo scope, such as [`secrets.GITHUB_TOKEN`]
 
 **comment-template** (optional)
 
-Override the comment posted on Issues and PRs. Set to the empty string to disable commenting. The string `{release_link}` will be replaced with a markdown link to the release. `{release_name}` will be replaced with the release's name. `{release_tag}` will be replaced with the release's tag. `{pr_title}` will be replaced with the PR's title. `{pr_author}` will be replaced with the PR author's username.
+Override the comment posted on Issues and PRs. Set to the empty string to disable commenting. The string `{release_link}` will be replaced with a markdown link to the release. `{release_name}` will be replaced with the release's name. `{release_tag}` will be replaced with the release's tag. `{title}` will be replaced with the PR's title. `{author}` will be replaced with the PR author's username.
 
 **label-template** (optional)
 

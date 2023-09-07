@@ -23,5 +23,5 @@ inputs:
     required: false
     default: "dependencies"
 runs:
-  using: node18
+  using: node20
   main: dst/index.js

@@ -8,7 +8,7 @@ const closesMatcher =
 const releaseLinkTemplateRegex = /{release_link}/g;
 const releaseNameTemplateRegex = /{release_name}/g;
 const releaseTagTemplateRegex = /{release_tag}/g;
-const authorTemplateRegex = /{author}/g;
+const prAuthorTemplateRegex = /{pr_author}/g;
 const prTitleTemplateRegex = /{pr_title}/g;
 
 (async function main() {
@@ -75,7 +75,7 @@ const prTitleTemplateRegex = /{pr_title}/g;
     const skipLabels = parseLabels(skipLabelTemplate);
 
     interface PR {
-      number: string;
+      number: number;
       title: string;
       author: string;
     }
@@ -206,7 +206,12 @@ const prTitleTemplateRegex = /{pr_title}/g;
           ].join(" ");
           for (const match of html.matchAll(closesMatcher)) {
             const [, num] = match;
-            linkedIssuesPrs.add(num);
+            const commit: PR = {
+              number: parseInt(num),
+              title: "N/A",
+              author: "N/A",
+            };
+            linkedIssuesPrs.add(commit);
           }
 
           if (response.resource.associatedPullRequests.pageInfo.hasNextPage) {
@@ -231,7 +236,7 @@ const prTitleTemplateRegex = /{pr_title}/g;
               continue;
             }
             const pr: PR = {
-              number: `${associatedPR.node.number}`,
+              number: associatedPR.node.number,
               title: associatedPR.node.title,
               author: associatedPR.node.author.login,
             };
@@ -248,7 +253,7 @@ const prTitleTemplateRegex = /{pr_title}/g;
               }
               if (link.__typename == "ConnectedEvent") {
                 const event: PR = {
-                  number: `${link.subject.number}`,
+                  number: link.subject.number,
                   title: link.subject.title,
                   author: link.subject.author.login,
                 };
@@ -263,7 +268,7 @@ const prTitleTemplateRegex = /{pr_title}/g;
 
     const requests: Array<Promise<unknown>> = [];
     for (const issuePr of linkedIssuesPrs) {
-      const issueNumber = parseInt(issuePr.number);
+      const issueNumber = issuePr.number;
       const baseRequest = {
         ...github.context.repo,
         issue_number: issueNumber,
@@ -271,7 +276,7 @@ const prTitleTemplateRegex = /{pr_title}/g;
       if (comment) {
         // replace author and title variables
         const finalComment = comment
-          .replace(authorTemplateRegex, issuePr.author)
+          .replace(prAuthorTemplateRegex, issuePr.author)
           .replace(prTitleTemplateRegex, issuePr.title);
         
         const request = {

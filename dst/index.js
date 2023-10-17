@@ -93,13 +93,12 @@ var authorTemplateRegex = /{author}/g;
 var titleTemplateRegex = /{title}/g;
 (function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var payload_1, githubToken, octokit_1, commentTemplate, labelTemplate, skipLabelTemplate, releases, _a, currentRelease_1, priorRelease, commits, releaseLabel_1, comment, parseLabels, labels, skipLabels_1, linkedIssuesPrs_2, requests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issuePr, issueNumber, baseRequest, finalComment, request, request, error_1;
-        var e_1, _b;
+        var payload_1, githubToken, octokit_1, commentTemplate, labelTemplate, skipLabelTemplate, skipLinkedEvents, shouldSkipLinkedEvents_1, releases, _a, currentRelease_1, priorRelease, commits, releaseLabel_1, comment, parseLabels, labels, skipLabels_1, linkedIssuesPrs_1, requests, issuePrNumber, issuePr, baseRequest, finalComment, request, request, error_1;
         var _this = this;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    _c.trys.push([0, 5, , 6]);
+                    _b.trys.push([0, 5, , 6]);
                     payload_1 = github.context
                         .payload;
                     githubToken = core.getInput("GITHUB_TOKEN");
@@ -107,9 +106,15 @@ var titleTemplateRegex = /{title}/g;
                     commentTemplate = core.getInput("comment-template");
                     labelTemplate = core.getInput("label-template") || null;
                     skipLabelTemplate = core.getInput("skip-label") || null;
+                    skipLinkedEvents = core.getInput("skip-label") || null;
+                    core.info("skipLinkedEvents");
+                    core.info(skipLinkedEvents);
+                    core.info(skipLinkedEvents === "true" ? "true" : "false");
+                    core.info(skipLinkedEvents === "false" ? "true" : "false");
+                    shouldSkipLinkedEvents_1 = skipLinkedEvents === "true";
                     return [4 /*yield*/, octokit_1.rest.repos.listReleases(__assign(__assign({}, github.context.repo), { per_page: 2 }))];
                 case 1:
-                    releases = (_c.sent()).data;
+                    releases = (_b.sent()).data;
                     if (releases.length < 2) {
                         if (!releases.length) {
                             core.error("no releases found");
@@ -121,7 +126,7 @@ var titleTemplateRegex = /{title}/g;
                     _a = __read(releases, 2), currentRelease_1 = _a[0], priorRelease = _a[1];
                     return [4 /*yield*/, octokit_1.rest.repos.compareCommits(__assign(__assign({}, github.context.repo), { base: priorRelease.tag_name, head: currentRelease_1.tag_name }))];
                 case 2:
-                    commits = (_c.sent()).data.commits;
+                    commits = (_b.sent()).data.commits;
                     core.info("".concat(priorRelease.tag_name, "...").concat(currentRelease_1.tag_name));
                     if (!currentRelease_1.name) {
                         core.info("current release has no name, will fall back to the tag name");
@@ -138,11 +143,11 @@ var titleTemplateRegex = /{title}/g;
                     };
                     labels = parseLabels(labelTemplate);
                     skipLabels_1 = parseLabels(skipLabelTemplate);
-                    linkedIssuesPrs_2 = new Set();
+                    linkedIssuesPrs_1 = {};
                     return [4 /*yield*/, Promise.all(commits.map(function (commit) {
                             return (function () { return __awaiter(_this, void 0, void 0, function () {
-                                var query, response, html, _a, _b, match, _c, num, commit_1, seen, associatedPRs, _loop_1, associatedPRs_1, associatedPRs_1_1, associatedPR;
-                                var e_2, _d, e_3, _e;
+                                var query, response, html, _a, _b, match, _c, num, pr, seen, associatedPRs, _loop_1, associatedPRs_1, associatedPRs_1_1, associatedPR;
+                                var e_1, _d, e_2, _e;
                                 return __generator(this, function (_f) {
                                     switch (_f.label) {
                                         case 0:
@@ -158,24 +163,27 @@ var titleTemplateRegex = /{title}/g;
                                                 response.resource.messageHeadlineHTML,
                                                 response.resource.messageBodyHTML
                                             ], __read(response.resource.associatedPullRequests.edges.map(function (pr) { return pr.node.bodyHTML; })), false).join(" ");
-                                            try {
-                                                for (_a = __values(html.matchAll(closesMatcher)), _b = _a.next(); !_b.done; _b = _a.next()) {
-                                                    match = _b.value;
-                                                    _c = __read(match, 2), num = _c[1];
-                                                    commit_1 = {
-                                                        number: parseInt(num),
-                                                        title: "N/A",
-                                                        author: "N/A",
-                                                    };
-                                                    linkedIssuesPrs_2.add(commit_1);
-                                                }
-                                            }
-                                            catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                                            finally {
+                                            if (!shouldSkipLinkedEvents_1) {
                                                 try {
-                                                    if (_b && !_b.done && (_d = _a.return)) _d.call(_a);
+                                                    for (_a = __values(html.matchAll(closesMatcher)), _b = _a.next(); !_b.done; _b = _a.next()) {
+                                                        match = _b.value;
+                                                        _c = __read(match, 2), num = _c[1];
+                                                        pr = {
+                                                            // number: parseInt(num),
+                                                            title: "N/A",
+                                                            author: "N/A",
+                                                        };
+                                                        // linkedIssuesPrs.add(commit);
+                                                        linkedIssuesPrs_1[parseInt(num)] = pr;
+                                                    }
                                                 }
-                                                finally { if (e_2) throw e_2.error; }
+                                                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                                                finally {
+                                                    try {
+                                                        if (_b && !_b.done && (_d = _a.return)) _d.call(_a);
+                                                    }
+                                                    finally { if (e_1) throw e_1.error; }
+                                                }
                                             }
                                             if (response.resource.associatedPullRequests.pageInfo.hasNextPage) {
                                                 core.warning("Too many PRs associated with ".concat(commit.sha));
@@ -183,7 +191,7 @@ var titleTemplateRegex = /{title}/g;
                                             seen = new Set();
                                             associatedPRs = response.resource.associatedPullRequests.edges;
                                             _loop_1 = function (associatedPR) {
-                                                var e_4, _g;
+                                                var e_3, _g;
                                                 if (associatedPR.node.timelineItems.pageInfo.hasNextPage) {
                                                     core.warning("Too many links for #".concat(associatedPR.node.number));
                                                 }
@@ -200,39 +208,43 @@ var titleTemplateRegex = /{title}/g;
                                                     return "continue";
                                                 }
                                                 var pr = {
-                                                    number: associatedPR.node.number,
+                                                    // number: associatedPR.node.number,
                                                     title: associatedPR.node.title,
                                                     author: associatedPR.node.author.login,
                                                 };
-                                                linkedIssuesPrs_2.add(pr);
-                                                // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
-                                                // ignore links that aren't part of this repo
-                                                var links = associatedPR.node.timelineItems.nodes
-                                                    .filter(function (node) { return !node.isCrossRepository; })
-                                                    .reverse();
-                                                try {
-                                                    for (var links_1 = (e_4 = void 0, __values(links)), links_1_1 = links_1.next(); !links_1_1.done; links_1_1 = links_1.next()) {
-                                                        var link = links_1_1.value;
-                                                        if (seen.has(link.subject.number)) {
-                                                            continue;
-                                                        }
-                                                        if (link.__typename == "ConnectedEvent") {
-                                                            var event = {
-                                                                number: link.subject.number,
-                                                                title: link.subject.title,
-                                                                author: link.subject.author.login,
-                                                            };
-                                                            linkedIssuesPrs_2.add(event);
-                                                        }
-                                                        seen.add(link.subject.number);
-                                                    }
-                                                }
-                                                catch (e_4_1) { e_4 = { error: e_4_1 }; }
-                                                finally {
+                                                // linkedIssuesPrs.add(pr);
+                                                linkedIssuesPrs_1[associatedPR.node.number] = pr;
+                                                if (!shouldSkipLinkedEvents_1) {
+                                                    // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
+                                                    // ignore links that aren't part of this repo
+                                                    var links = associatedPR.node.timelineItems.nodes
+                                                        .filter(function (node) { return !node.isCrossRepository; })
+                                                        .reverse();
                                                     try {
-                                                        if (links_1_1 && !links_1_1.done && (_g = links_1.return)) _g.call(links_1);
+                                                        for (var links_1 = (e_3 = void 0, __values(links)), links_1_1 = links_1.next(); !links_1_1.done; links_1_1 = links_1.next()) {
+                                                            var link = links_1_1.value;
+                                                            if (seen.has(link.subject.number)) {
+                                                                continue;
+                                                            }
+                                                            if (link.__typename == "ConnectedEvent") {
+                                                                var event = {
+                                                                    // number: link.subject.number,
+                                                                    title: link.subject.title,
+                                                                    author: link.subject.author.login,
+                                                                };
+                                                                // linkedIssuesPrs.add(event);
+                                                                linkedIssuesPrs_1[link.subject.number] = event;
+                                                            }
+                                                            seen.add(link.subject.number);
+                                                        }
                                                     }
-                                                    finally { if (e_4) throw e_4.error; }
+                                                    catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                                                    finally {
+                                                        try {
+                                                            if (links_1_1 && !links_1_1.done && (_g = links_1.return)) _g.call(links_1);
+                                                        }
+                                                        finally { if (e_3) throw e_3.error; }
+                                                    }
                                                 }
                                             };
                                             try {
@@ -241,12 +253,12 @@ var titleTemplateRegex = /{title}/g;
                                                     _loop_1(associatedPR);
                                                 }
                                             }
-                                            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                                            catch (e_2_1) { e_2 = { error: e_2_1 }; }
                                             finally {
                                                 try {
                                                     if (associatedPRs_1_1 && !associatedPRs_1_1.done && (_e = associatedPRs_1.return)) _e.call(associatedPRs_1);
                                                 }
-                                                finally { if (e_3) throw e_3.error; }
+                                                finally { if (e_2) throw e_2.error; }
                                             }
                                             return [2 /*return*/];
                                     }
@@ -254,41 +266,32 @@ var titleTemplateRegex = /{title}/g;
                             }); })();
                         }))];
                 case 3:
-                    _c.sent();
+                    _b.sent();
                     requests = [];
-                    try {
-                        for (linkedIssuesPrs_1 = __values(linkedIssuesPrs_2), linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next(); !linkedIssuesPrs_1_1.done; linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next()) {
-                            issuePr = linkedIssuesPrs_1_1.value;
-                            issueNumber = issuePr.number;
-                            baseRequest = __assign(__assign({}, github.context.repo), { issue_number: issueNumber });
-                            if (comment) {
-                                finalComment = comment
-                                    .replace(authorTemplateRegex, issuePr.author)
-                                    .replace(titleTemplateRegex, issuePr.title);
-                                request = __assign(__assign({}, baseRequest), { body: finalComment });
-                                core.info(JSON.stringify(request, null, 2));
-                                requests.push(octokit_1.rest.issues.createComment(request));
-                            }
-                            if (labels) {
-                                request = __assign(__assign({}, baseRequest), { labels: labels });
-                                core.info(JSON.stringify(request, null, 2));
-                                requests.push(octokit_1.rest.issues.addLabels(request));
-                            }
+                    // for (const issuePr of linkedIssuesPrs) {
+                    for (issuePrNumber in linkedIssuesPrs_1) {
+                        issuePr = linkedIssuesPrs_1[issuePrNumber];
+                        baseRequest = __assign(__assign({}, github.context.repo), { issue_number: issuePrNumber });
+                        if (comment) {
+                            finalComment = comment
+                                .replace(authorTemplateRegex, issuePr.author)
+                                .replace(titleTemplateRegex, issuePr.title);
+                            request = __assign(__assign({}, baseRequest), { body: finalComment });
+                            core.info(JSON.stringify(request, null, 2));
+                            requests.push(octokit_1.rest.issues.createComment(request));
                         }
-                    }
-                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                    finally {
-                        try {
-                            if (linkedIssuesPrs_1_1 && !linkedIssuesPrs_1_1.done && (_b = linkedIssuesPrs_1.return)) _b.call(linkedIssuesPrs_1);
+                        if (labels) {
+                            request = __assign(__assign({}, baseRequest), { labels: labels });
+                            core.info(JSON.stringify(request, null, 2));
+                            requests.push(octokit_1.rest.issues.addLabels(request));
                         }
-                        finally { if (e_1) throw e_1.error; }
                     }
                     return [4 /*yield*/, Promise.all(requests)];
                 case 4:
-                    _c.sent();
+                    _b.sent();
                     return [3 /*break*/, 6];
                 case 5:
-                    error_1 = _c.sent();
+                    error_1 = _b.sent();
                     core.error(error_1);
                     core.setFailed(error_1.message);
                     return [3 /*break*/, 6];

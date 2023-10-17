@@ -22,6 +22,10 @@ inputs:
     description: Skip commenting if any of the given label are present. Multiple labels can be separated by commas.
     required: false
     default: "dependencies"
+  skip-linked:
+    description: Skip commenting on linked issues or PRs.
+    required: false
+    default: "false"
 runs:
   using: node20
   main: dst/index.js

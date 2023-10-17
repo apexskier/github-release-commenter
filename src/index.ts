@@ -22,6 +22,9 @@ const titleTemplateRegex = /{title}/g;
     const commentTemplate = core.getInput("comment-template");
     const labelTemplate = core.getInput("label-template") || null;
     const skipLabelTemplate = core.getInput("skip-label") || null;
+    
+    const skipLinkedEvents = core.getInput("skip-linked") || null;
+    const shouldSkipLinkedEvents = skipLinkedEvents === "true";
 
     // watch out, this is returning deleted releases for some reason
     const { data: releases } = await octokit.rest.repos.listReleases({
@@ -75,12 +78,11 @@ const titleTemplateRegex = /{title}/g;
     const skipLabels = parseLabels(skipLabelTemplate);
 
     interface PR {
-      number: number;
       title: string;
       author: string;
     }
 
-    const linkedIssuesPrs = new Set<PR>();
+    let linkedIssuesPrs: { [number: number]: PR } = {};
 
     await Promise.all(
       commits.map((commit) =>
@@ -204,15 +206,18 @@ const titleTemplateRegex = /{title}/g;
               (pr) => pr.node.bodyHTML
             ),
           ].join(" ");
-          for (const match of html.matchAll(closesMatcher)) {
-            const [, num] = match;
-            const commit: PR = {
-              number: parseInt(num),
-              title: "N/A",
-              author: "N/A",
-            };
-            linkedIssuesPrs.add(commit);
+
+          if (!shouldSkipLinkedEvents) {
+            for (const match of html.matchAll(closesMatcher)) {
+              const [, num] = match;
+              const pr: PR = {
+                title: "N/A",
+                author: "N/A",
+              };
+              linkedIssuesPrs[parseInt(num)] = pr;
+            }
           }
+
 
           if (response.resource.associatedPullRequests.pageInfo.hasNextPage) {
             core.warning(`Too many PRs associated with ${commit.sha}`);
@@ -236,49 +241,51 @@ const titleTemplateRegex = /{title}/g;
               continue;
             }
             const pr: PR = {
-              number: associatedPR.node.number,
               title: associatedPR.node.title,
               author: associatedPR.node.author.login,
             };
-            
-            linkedIssuesPrs.add(pr);
-            // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
-            // ignore links that aren't part of this repo
-            const links = associatedPR.node.timelineItems.nodes
-              .filter((node) => !node.isCrossRepository)
-              .reverse();
-            for (const link of links) {
-              if (seen.has(link.subject.number)) {
-                continue;
+
+            linkedIssuesPrs[associatedPR.node.number] = pr;
+
+            if (!shouldSkipLinkedEvents) {
+              // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
+              // ignore links that aren't part of this repo
+              const links = associatedPR.node.timelineItems.nodes
+                .filter((node) => !node.isCrossRepository)
+                .reverse();
+              for (const link of links) {
+                if (seen.has(link.subject.number)) {
+                  continue;
+                }
+                if (link.__typename == "ConnectedEvent") {
+                  const event: PR = {
+                    title: link.subject.title,
+                    author: link.subject.author.login,
+                  };
+                  linkedIssuesPrs[link.subject.number] = event;
+                }
+                seen.add(link.subject.number);
               }
-              if (link.__typename == "ConnectedEvent") {
-                const event: PR = {
-                  number: link.subject.number,
-                  title: link.subject.title,
-                  author: link.subject.author.login,
-                };
-                linkedIssuesPrs.add(event);
-              }
-              seen.add(link.subject.number);
             }
+
           }
         })()
       )
     );
 
     const requests: Array<Promise<unknown>> = [];
-    for (const issuePr of linkedIssuesPrs) {
-      const issueNumber = issuePr.number;
+    for (const issuePrNumber in linkedIssuesPrs) {
+      const issuePr = linkedIssuesPrs[issuePrNumber];
       const baseRequest = {
         ...github.context.repo,
-        issue_number: issueNumber,
+        issue_number: issuePrNumber,
       };
       if (comment) {
         // replace author and title variables
         const finalComment = comment
           .replace(authorTemplateRegex, issuePr.author)
           .replace(titleTemplateRegex, issuePr.title);
-        
+
         const request = {
           ...baseRequest,
           body: finalComment,

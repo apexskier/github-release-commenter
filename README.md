@@ -1,3 +1,8 @@
+Forked from [github-release-commenter](https://github.com/apexskier/github-release-commenter) and added following template variables:
+- `{title}`       - Title of of the PR/Issue
+- `{author}`      - Author of the PR/Issue
+- `{skip-linked}` - Skip commenting on linked Issues/PRs
+
 # Release Commenter
 
 This GitHub Action automatically comments on and/or labels Issues and PRs when a fix is released for them.

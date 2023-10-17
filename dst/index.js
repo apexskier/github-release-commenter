@@ -169,11 +169,9 @@ var titleTemplateRegex = /{title}/g;
                                                         match = _b.value;
                                                         _c = __read(match, 2), num = _c[1];
                                                         pr = {
-                                                            // number: parseInt(num),
                                                             title: "N/A",
                                                             author: "N/A",
                                                         };
-                                                        // linkedIssuesPrs.add(commit);
                                                         linkedIssuesPrs_1[parseInt(num)] = pr;
                                                     }
                                                 }
@@ -208,11 +206,9 @@ var titleTemplateRegex = /{title}/g;
                                                     return "continue";
                                                 }
                                                 var pr = {
-                                                    // number: associatedPR.node.number,
                                                     title: associatedPR.node.title,
                                                     author: associatedPR.node.author.login,
                                                 };
-                                                // linkedIssuesPrs.add(pr);
                                                 linkedIssuesPrs_1[associatedPR.node.number] = pr;
                                                 if (!shouldSkipLinkedEvents_1) {
                                                     // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
@@ -228,11 +224,9 @@ var titleTemplateRegex = /{title}/g;
                                                             }
                                                             if (link.__typename == "ConnectedEvent") {
                                                                 var event = {
-                                                                    // number: link.subject.number,
                                                                     title: link.subject.title,
                                                                     author: link.subject.author.login,
                                                                 };
-                                                                // linkedIssuesPrs.add(event);
                                                                 linkedIssuesPrs_1[link.subject.number] = event;
                                                             }
                                                             seen.add(link.subject.number);
@@ -268,7 +262,6 @@ var titleTemplateRegex = /{title}/g;
                 case 3:
                     _b.sent();
                     requests = [];
-                    // for (const issuePr of linkedIssuesPrs) {
                     for (issuePrNumber in linkedIssuesPrs_1) {
                         issuePr = linkedIssuesPrs_1[issuePrNumber];
                         baseRequest = __assign(__assign({}, github.context.repo), { issue_number: issuePrNumber });

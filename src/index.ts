@@ -87,7 +87,6 @@ const titleTemplateRegex = /{title}/g;
       author: string;
     }
 
-    // const linkedIssuesPrs = new Set<PR>();
     let linkedIssuesPrs: { [number: number]: PR } = {};
 
     await Promise.all(
@@ -217,11 +216,9 @@ const titleTemplateRegex = /{title}/g;
             for (const match of html.matchAll(closesMatcher)) {
               const [, num] = match;
               const pr: PR = {
-                // number: parseInt(num),
                 title: "N/A",
                 author: "N/A",
               };
-              // linkedIssuesPrs.add(commit);
               linkedIssuesPrs[parseInt(num)] = pr;
             }
           }
@@ -249,12 +246,10 @@ const titleTemplateRegex = /{title}/g;
               continue;
             }
             const pr: PR = {
-              // number: associatedPR.node.number,
               title: associatedPR.node.title,
               author: associatedPR.node.author.login,
             };
 
-            // linkedIssuesPrs.add(pr);
             linkedIssuesPrs[associatedPR.node.number] = pr;
 
             if (!shouldSkipLinkedEvents) {
@@ -269,11 +264,9 @@ const titleTemplateRegex = /{title}/g;
                 }
                 if (link.__typename == "ConnectedEvent") {
                   const event: PR = {
-                    // number: link.subject.number,
                     title: link.subject.title,
                     author: link.subject.author.login,
                   };
-                  // linkedIssuesPrs.add(event);
                   linkedIssuesPrs[link.subject.number] = event;
                 }
                 seen.add(link.subject.number);
@@ -286,10 +279,7 @@ const titleTemplateRegex = /{title}/g;
     );
 
     const requests: Array<Promise<unknown>> = [];
-    // for (const issuePr of linkedIssuesPrs) {
     for (const issuePrNumber in linkedIssuesPrs) {
-      // const issueNumber = issuePr.number;
-      // const issueNumber = parseInt(issuePrNumber);
       const issuePr = linkedIssuesPrs[issuePrNumber];
       const baseRequest = {
         ...github.context.repo,

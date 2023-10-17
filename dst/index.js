@@ -106,7 +106,7 @@ var titleTemplateRegex = /{title}/g;
                     commentTemplate = core.getInput("comment-template");
                     labelTemplate = core.getInput("label-template") || null;
                     skipLabelTemplate = core.getInput("skip-label") || null;
-                    skipLinkedEvents = core.getInput("skip-label") || null;
+                    skipLinkedEvents = core.getInput("skip-linked") || null;
                     core.info("skipLinkedEvents");
                     core.info(skipLinkedEvents);
                     core.info(skipLinkedEvents === "true" ? "true" : "false");

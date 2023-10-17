@@ -22,7 +22,7 @@ const titleTemplateRegex = /{title}/g;
     const commentTemplate = core.getInput("comment-template");
     const labelTemplate = core.getInput("label-template") || null;
     const skipLabelTemplate = core.getInput("skip-label") || null;
-    const skipLinkedEvents = core.getInput("skip-label") || null;
+    const skipLinkedEvents = core.getInput("skip-linked") || null;
 
     core.info("skipLinkedEvents");
     core.info(skipLinkedEvents);

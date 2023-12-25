@@ -248,7 +248,7 @@ const releaseTagTemplateRegex = /{release_tag}/g;
     }
     await Promise.all(requests);
   } catch (error) {
-    core.error(error);
-    core.setFailed(error.message);
+    core.error(error as Error);
+    core.setFailed((error as Error).message);
   }
 })();

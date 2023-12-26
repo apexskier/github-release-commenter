@@ -58,7 +58,8 @@ describe("tests", () => {
       fail(`Unexpected input key ${key}`);
     });
 
-    commentTempate = "Included in release {release_link}";
+    commentTempate =
+      "Included in release {release_link}. Replacements: {release_name}, {release_tag}.";
     labelTemplate = null;
     simpleMockOctokit = {
       rest: {
@@ -80,12 +81,12 @@ describe("tests", () => {
                   html_url: "http://prior_release",
                 },
               ],
-            })
+            }),
           ),
           compareCommits: jest.fn(() =>
             Promise.resolve({
               data: { commits: [{ sha: "SHA1" }] },
-            })
+            }),
           ),
         },
       },
@@ -100,7 +101,7 @@ describe("tests", () => {
               edges: [],
             },
           },
-        })
+        }),
       ),
     };
   });
@@ -132,12 +133,12 @@ describe("tests", () => {
                   html_url: "http://prior_release",
                 },
               ],
-            })
+            }),
           ),
           compareCommits: jest.fn(() =>
             Promise.resolve({
               data: { commits: [{ sha: "SHA1" }, { sha: "SHA2" }] },
-            })
+            }),
           ),
         },
       },
@@ -210,7 +211,7 @@ describe("tests", () => {
               ],
             },
           },
-        })
+        }),
       ),
     };
 

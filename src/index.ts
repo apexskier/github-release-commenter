@@ -203,17 +203,16 @@ const titleTemplateRegex = /{title}/g;
             response.resource.messageHeadlineHTML,
             response.resource.messageBodyHTML,
             ...response.resource.associatedPullRequests.edges.map(
-              (pr) => pr.node.bodyHTML
+              (pr) => pr.node.bodyHTML,
             ),
           ].join(" ");
           for (const match of html.matchAll(closesMatcher)) {
             const [, num] = match;
-            const commit: PR = {
-              number: parseInt(num),
+            linkedIssuesPrs.add({
+              number: parseInt(num, 10),
               title: "N/A",
               author: "N/A",
-            };
-            linkedIssuesPrs.add(commit);
+            });
           }
 
           if (response.resource.associatedPullRequests.pageInfo.hasNextPage) {
@@ -232,18 +231,16 @@ const titleTemplateRegex = /{title}/g;
             // a skip labels is present on this PR
             if (
               skipLabels?.some((l) =>
-                associatedPR.node.labels.nodes.some(({ name }) => name === l)
+                associatedPR.node.labels.nodes.some(({ name }) => name === l),
               )
             ) {
               continue;
             }
-            const pr: PR = {
+            linkedIssuesPrs.add({
               number: associatedPR.node.number,
               title: associatedPR.node.title,
               author: associatedPR.node.author.login,
-            };
-
-            linkedIssuesPrs.add(pr);
+            });
             // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
             // ignore links that aren't part of this repo
             const links = associatedPR.node.timelineItems.nodes
@@ -254,18 +251,17 @@ const titleTemplateRegex = /{title}/g;
                 continue;
               }
               if (link.__typename == "ConnectedEvent") {
-                const event: PR = {
+                linkedIssuesPrs.add({
                   number: link.subject.number,
                   title: link.subject.title,
                   author: link.subject.author.login,
-                };
-                linkedIssuesPrs.add(event);
+                });
               }
               seen.add(link.subject.number);
             }
           }
-        })()
-      )
+        })(),
+      ),
     );
 
     const requests: Array<Promise<unknown>> = [];

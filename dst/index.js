@@ -129,19 +129,22 @@ var titleTemplateRegex = /{title}/g;
                     releaseLabel_1 = currentRelease_1.name || currentRelease_1.tag_name;
                     comment = commentTemplate
                         .trim()
-                        .replace(releaseLinkTemplateRegex, "[".concat(releaseLabel_1, "](").concat(currentRelease_1.html_url, ")"))
-                        .replace(releaseNameTemplateRegex, releaseLabel_1)
-                        .replace(releaseTagTemplateRegex, currentRelease_1.tag_name);
+                        .split(releaseLinkTemplateRegex)
+                        .join("[".concat(releaseLabel_1, "](").concat(currentRelease_1.html_url, ")"))
+                        .split(releaseNameTemplateRegex)
+                        .join(releaseLabel_1)
+                        .split(releaseTagTemplateRegex)
+                        .join(currentRelease_1.tag_name);
                     parseLabels = function (rawInput) {
                         var _a, _b, _c;
-                        return (_c = (_b = (_a = rawInput === null || rawInput === void 0 ? void 0 : rawInput.replace(releaseNameTemplateRegex, releaseLabel_1)) === null || _a === void 0 ? void 0 : _a.replace(releaseTagTemplateRegex, currentRelease_1.tag_name)) === null || _b === void 0 ? void 0 : _b.split(",")) === null || _c === void 0 ? void 0 : _c.map(function (l) { return l.trim(); }).filter(function (l) { return l; });
+                        return (_c = (_b = (_a = rawInput === null || rawInput === void 0 ? void 0 : rawInput.split(releaseNameTemplateRegex).join(releaseLabel_1)) === null || _a === void 0 ? void 0 : _a.split(releaseTagTemplateRegex).join(currentRelease_1.tag_name)) === null || _b === void 0 ? void 0 : _b.split(",")) === null || _c === void 0 ? void 0 : _c.map(function (l) { return l.trim(); }).filter(function (l) { return l; });
                     };
                     labels = parseLabels(labelTemplate);
                     skipLabels_1 = parseLabels(skipLabelTemplate);
                     linkedIssuesPrs_2 = new Set();
                     return [4 /*yield*/, Promise.all(commits.map(function (commit) {
                             return (function () { return __awaiter(_this, void 0, void 0, function () {
-                                var query, response, html, _a, _b, match, _c, num, commit_1, seen, associatedPRs, _loop_1, associatedPRs_1, associatedPRs_1_1, associatedPR;
+                                var query, response, html, _a, _b, match, _c, num, seen, associatedPRs, _loop_1, associatedPRs_1, associatedPRs_1_1, associatedPR;
                                 var e_2, _d, e_3, _e;
                                 return __generator(this, function (_f) {
                                     switch (_f.label) {
@@ -162,12 +165,11 @@ var titleTemplateRegex = /{title}/g;
                                                 for (_a = __values(html.matchAll(closesMatcher)), _b = _a.next(); !_b.done; _b = _a.next()) {
                                                     match = _b.value;
                                                     _c = __read(match, 2), num = _c[1];
-                                                    commit_1 = {
-                                                        number: parseInt(num),
+                                                    linkedIssuesPrs_2.add({
+                                                        number: parseInt(num, 10),
                                                         title: "N/A",
                                                         author: "N/A",
-                                                    };
-                                                    linkedIssuesPrs_2.add(commit_1);
+                                                    });
                                                 }
                                             }
                                             catch (e_2_1) { e_2 = { error: e_2_1 }; }
@@ -199,12 +201,11 @@ var titleTemplateRegex = /{title}/g;
                                                 })) {
                                                     return "continue";
                                                 }
-                                                var pr = {
+                                                linkedIssuesPrs_2.add({
                                                     number: associatedPR.node.number,
                                                     title: associatedPR.node.title,
                                                     author: associatedPR.node.author.login,
-                                                };
-                                                linkedIssuesPrs_2.add(pr);
+                                                });
                                                 // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
                                                 // ignore links that aren't part of this repo
                                                 var links = associatedPR.node.timelineItems.nodes
@@ -217,12 +218,11 @@ var titleTemplateRegex = /{title}/g;
                                                             continue;
                                                         }
                                                         if (link.__typename == "ConnectedEvent") {
-                                                            var event = {
+                                                            linkedIssuesPrs_2.add({
                                                                 number: link.subject.number,
                                                                 title: link.subject.title,
                                                                 author: link.subject.author.login,
-                                                            };
-                                                            linkedIssuesPrs_2.add(event);
+                                                            });
                                                         }
                                                         seen.add(link.subject.number);
                                                     }
@@ -263,8 +263,10 @@ var titleTemplateRegex = /{title}/g;
                             baseRequest = __assign(__assign({}, github.context.repo), { issue_number: issueNumber });
                             if (comment) {
                                 finalComment = comment
-                                    .replace(authorTemplateRegex, issuePr.author)
-                                    .replace(titleTemplateRegex, issuePr.title);
+                                    .split(authorTemplateRegex)
+                                    .join(issuePr.author)
+                                    .split(titleTemplateRegex)
+                                    .join(issuePr.title);
                                 request = __assign(__assign({}, baseRequest), { body: finalComment });
                                 core.info(JSON.stringify(request, null, 2));
                                 requests.push(octokit_1.rest.issues.createComment(request));

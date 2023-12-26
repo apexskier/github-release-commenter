@@ -160,43 +160,43 @@ Object {
         "calls": Array [
           Array [
             Object {
-              "body": "Included in release [current_tag_name](http://current_release)",
+              "body": "Included in release [current_tag_name](http://current_release). Replacements: current_tag_name, current_tag_name.",
               "issue_number": 3,
             },
           ],
           Array [
             Object {
-              "body": "Included in release [current_tag_name](http://current_release)",
+              "body": "Included in release [current_tag_name](http://current_release). Replacements: current_tag_name, current_tag_name.",
               "issue_number": 123,
             },
           ],
           Array [
             Object {
-              "body": "Included in release [current_tag_name](http://current_release)",
+              "body": "Included in release [current_tag_name](http://current_release). Replacements: current_tag_name, current_tag_name.",
               "issue_number": 7,
             },
           ],
           Array [
             Object {
-              "body": "Included in release [current_tag_name](http://current_release)",
+              "body": "Included in release [current_tag_name](http://current_release). Replacements: current_tag_name, current_tag_name.",
               "issue_number": 4,
             },
           ],
           Array [
             Object {
-              "body": "Included in release [current_tag_name](http://current_release)",
+              "body": "Included in release [current_tag_name](http://current_release). Replacements: current_tag_name, current_tag_name.",
               "issue_number": 5,
             },
           ],
           Array [
             Object {
-              "body": "Included in release [current_tag_name](http://current_release)",
+              "body": "Included in release [current_tag_name](http://current_release). Replacements: current_tag_name, current_tag_name.",
               "issue_number": 9,
             },
           ],
           Array [
             Object {
-              "body": "Included in release [current_tag_name](http://current_release)",
+              "body": "Included in release [current_tag_name](http://current_release). Replacements: current_tag_name, current_tag_name.",
               "issue_number": 2,
             },
           ],

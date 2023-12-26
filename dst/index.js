@@ -91,7 +91,7 @@ var releaseNameTemplateRegex = /{release_name}/g;
 var releaseTagTemplateRegex = /{release_tag}/g;
 (function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var payload_1, githubToken, octokit_1, commentTemplate, labelTemplate, skipLabelTemplate, releases, _a, currentRelease_1, priorRelease, commits, releaseLabel_1, comment, parseLabels, labels, skipLabels_1, linkedIssuesPrs_2, requests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueStr, issueNumber, baseRequest, request, request, error_1;
+        var payload_1, githubToken, octokit_1, commentTemplate, labelTemplate, skipLabelTemplate, releases, _a, currentRelease_1, priorRelease, commits, releaseLabel_1, comment, parseLabels, labels, skipLabels_1, linkedIssuesPrs_2, requests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, baseRequest, request, request, error_1;
         var e_1, _b;
         var _this = this;
         return __generator(this, function (_c) {
@@ -127,12 +127,15 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                     releaseLabel_1 = currentRelease_1.name || currentRelease_1.tag_name;
                     comment = commentTemplate
                         .trim()
-                        .replace(releaseLinkTemplateRegex, "[".concat(releaseLabel_1, "](").concat(currentRelease_1.html_url, ")"))
-                        .replace(releaseNameTemplateRegex, releaseLabel_1)
-                        .replace(releaseTagTemplateRegex, currentRelease_1.tag_name);
+                        .split(releaseLinkTemplateRegex)
+                        .join("[".concat(releaseLabel_1, "](").concat(currentRelease_1.html_url, ")"))
+                        .split(releaseNameTemplateRegex)
+                        .join(releaseLabel_1)
+                        .split(releaseTagTemplateRegex)
+                        .join(currentRelease_1.tag_name);
                     parseLabels = function (rawInput) {
                         var _a, _b, _c;
-                        return (_c = (_b = (_a = rawInput === null || rawInput === void 0 ? void 0 : rawInput.replace(releaseNameTemplateRegex, releaseLabel_1)) === null || _a === void 0 ? void 0 : _a.replace(releaseTagTemplateRegex, currentRelease_1.tag_name)) === null || _b === void 0 ? void 0 : _b.split(",")) === null || _c === void 0 ? void 0 : _c.map(function (l) { return l.trim(); }).filter(function (l) { return l; });
+                        return (_c = (_b = (_a = rawInput === null || rawInput === void 0 ? void 0 : rawInput.split(releaseNameTemplateRegex).join(releaseLabel_1)) === null || _a === void 0 ? void 0 : _a.split(releaseTagTemplateRegex).join(currentRelease_1.tag_name)) === null || _b === void 0 ? void 0 : _b.split(",")) === null || _c === void 0 ? void 0 : _c.map(function (l) { return l.trim(); }).filter(function (l) { return l; });
                     };
                     labels = parseLabels(labelTemplate);
                     skipLabels_1 = parseLabels(skipLabelTemplate);
@@ -160,7 +163,7 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                                                 for (_a = __values(html.matchAll(closesMatcher)), _b = _a.next(); !_b.done; _b = _a.next()) {
                                                     match = _b.value;
                                                     _c = __read(match, 2), num = _c[1];
-                                                    linkedIssuesPrs_2.add(num);
+                                                    linkedIssuesPrs_2.add(parseInt(num, 10));
                                                 }
                                             }
                                             catch (e_2_1) { e_2 = { error: e_2_1 }; }
@@ -192,7 +195,7 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                                                 })) {
                                                     return "continue";
                                                 }
-                                                linkedIssuesPrs_2.add("".concat(associatedPR.node.number));
+                                                linkedIssuesPrs_2.add(associatedPR.node.number);
                                                 // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
                                                 // ignore links that aren't part of this repo
                                                 var links = associatedPR.node.timelineItems.nodes
@@ -205,7 +208,7 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                                                             continue;
                                                         }
                                                         if (link.__typename == "ConnectedEvent") {
-                                                            linkedIssuesPrs_2.add("".concat(link.subject.number));
+                                                            linkedIssuesPrs_2.add(link.subject.number);
                                                         }
                                                         seen.add(link.subject.number);
                                                     }
@@ -241,8 +244,7 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                     requests = [];
                     try {
                         for (linkedIssuesPrs_1 = __values(linkedIssuesPrs_2), linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next(); !linkedIssuesPrs_1_1.done; linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next()) {
-                            issueStr = linkedIssuesPrs_1_1.value;
-                            issueNumber = parseInt(issueStr);
+                            issueNumber = linkedIssuesPrs_1_1.value;
                             baseRequest = __assign(__assign({}, github.context.repo), { issue_number: issueNumber });
                             if (comment) {
                                 request = __assign(__assign({}, baseRequest), { body: comment });

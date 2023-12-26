@@ -56,23 +56,25 @@ const releaseTagTemplateRegex = /{release_tag}/g;
 
     const comment = commentTemplate
       .trim()
-      .replace(
-        releaseLinkTemplateRegex,
-        `[${releaseLabel}](${currentRelease.html_url})`,
-      )
-      .replace(releaseNameTemplateRegex, releaseLabel)
-      .replace(releaseTagTemplateRegex, currentRelease.tag_name);
+      .split(releaseLinkTemplateRegex)
+      .join(`[${releaseLabel}](${currentRelease.html_url})`)
+      .split(releaseNameTemplateRegex)
+      .join(releaseLabel)
+      .split(releaseTagTemplateRegex)
+      .join(currentRelease.tag_name);
     const parseLabels = (rawInput: string | null) =>
       rawInput
-        ?.replace(releaseNameTemplateRegex, releaseLabel)
-        ?.replace(releaseTagTemplateRegex, currentRelease.tag_name)
+        ?.split(releaseNameTemplateRegex)
+        .join(releaseLabel)
+        ?.split(releaseTagTemplateRegex)
+        .join(currentRelease.tag_name)
         ?.split(",")
         ?.map((l) => l.trim())
         .filter((l) => l);
     const labels = parseLabels(labelTemplate);
     const skipLabels = parseLabels(skipLabelTemplate);
 
-    const linkedIssuesPrs = new Set<string>();
+    const linkedIssuesPrs = new Set<number>();
 
     await Promise.all(
       commits.map((commit) =>
@@ -178,7 +180,7 @@ const releaseTagTemplateRegex = /{release_tag}/g;
           ].join(" ");
           for (const match of html.matchAll(closesMatcher)) {
             const [, num] = match;
-            linkedIssuesPrs.add(num);
+            linkedIssuesPrs.add(parseInt(num, 10));
           }
 
           if (response.resource.associatedPullRequests.pageInfo.hasNextPage) {
@@ -202,7 +204,7 @@ const releaseTagTemplateRegex = /{release_tag}/g;
             ) {
               continue;
             }
-            linkedIssuesPrs.add(`${associatedPR.node.number}`);
+            linkedIssuesPrs.add(associatedPR.node.number);
             // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
             // ignore links that aren't part of this repo
             const links = associatedPR.node.timelineItems.nodes
@@ -213,7 +215,7 @@ const releaseTagTemplateRegex = /{release_tag}/g;
                 continue;
               }
               if (link.__typename == "ConnectedEvent") {
-                linkedIssuesPrs.add(`${link.subject.number}`);
+                linkedIssuesPrs.add(link.subject.number);
               }
               seen.add(link.subject.number);
             }
@@ -223,8 +225,7 @@ const releaseTagTemplateRegex = /{release_tag}/g;
     );
 
     const requests: Array<Promise<unknown>> = [];
-    for (const issueStr of linkedIssuesPrs) {
-      const issueNumber = parseInt(issueStr);
+    for (const issueNumber of linkedIssuesPrs) {
       const baseRequest = {
         ...github.context.repo,
         issue_number: issueNumber,

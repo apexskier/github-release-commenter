@@ -58,16 +58,18 @@ const titleTemplateRegex = /{title}/g;
 
     const comment = commentTemplate
       .trim()
-      .replace(
-        releaseLinkTemplateRegex,
-        `[${releaseLabel}](${currentRelease.html_url})`
-      )
-      .replace(releaseNameTemplateRegex, releaseLabel)
-      .replace(releaseTagTemplateRegex, currentRelease.tag_name);
+      .split(releaseLinkTemplateRegex)
+      .join(`[${releaseLabel}](${currentRelease.html_url})`)
+      .split(releaseNameTemplateRegex)
+      .join(releaseLabel)
+      .split(releaseTagTemplateRegex)
+      .join(currentRelease.tag_name);
     const parseLabels = (rawInput: string | null) =>
       rawInput
-        ?.replace(releaseNameTemplateRegex, releaseLabel)
-        ?.replace(releaseTagTemplateRegex, currentRelease.tag_name)
+        ?.split(releaseNameTemplateRegex)
+        .join(releaseLabel)
+        ?.split(releaseTagTemplateRegex)
+        .join(currentRelease.tag_name)
         ?.split(",")
         ?.map((l) => l.trim())
         .filter((l) => l);
@@ -162,7 +164,7 @@ const titleTemplateRegex = /{title}/g;
                     title: string;
                     author: {
                       login: string;
-                    }
+                    };
                     bodyHTML: string;
                     number: number;
                     labels: {
@@ -180,7 +182,7 @@ const titleTemplateRegex = /{title}/g;
                           title: string;
                           author: {
                             login: string;
-                          }
+                          };
                           number: number;
                         };
                       }>;
@@ -240,7 +242,7 @@ const titleTemplateRegex = /{title}/g;
               title: associatedPR.node.title,
               author: associatedPR.node.author.login,
             };
-            
+
             linkedIssuesPrs.add(pr);
             // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
             // ignore links that aren't part of this repo
@@ -276,9 +278,11 @@ const titleTemplateRegex = /{title}/g;
       if (comment) {
         // replace author and title variables
         const finalComment = comment
-          .replace(authorTemplateRegex, issuePr.author)
-          .replace(titleTemplateRegex, issuePr.title);
-        
+          .split(authorTemplateRegex)
+          .join(issuePr.author)
+          .split(titleTemplateRegex)
+          .join(issuePr.title);
+
         const request = {
           ...baseRequest,
           body: finalComment,

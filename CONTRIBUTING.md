@@ -8,9 +8,9 @@ Create a new tag, following semver and prefixed with `v`. On push, workflows wil
 
 `DEPENDABOT_GITHUB_TOKEN`:
 
-* Actions: Access: Read and write
-* Contents: Access: Read and write
-* Metadata: Access: Read-only
+- Actions: Access: Read and write
+- Contents: Access: Read and write
+- Metadata: Access: Read-only
 
 ## Notes
 

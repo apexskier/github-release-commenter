@@ -26,6 +26,9 @@ jobs:
       - name: Release
         if: ${{ steps.semver.outputs.version }}
         uses: softprops/action-gh-release@v1
+        env:
+          # use a separate token to allow the release to trigger builds
+          GITHUB_TOKEN: ${{ secrets.DEPENDABOT_GITHUB_TOKEN}}
         with:
           tag_name: ${{ steps.version.outputs.VERSION }}
           prerelease: ${{ !!steps.semver.outputs.prerelease }}

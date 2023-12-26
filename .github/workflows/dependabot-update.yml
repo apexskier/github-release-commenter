@@ -18,7 +18,7 @@ jobs:
     environment: dependabot_update
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           # use a separate token to allow the push to trigger builds
           token: ${{ secrets.DEPENDABOT_GITHUB_TOKEN }}

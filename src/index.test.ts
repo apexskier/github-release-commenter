@@ -58,7 +58,8 @@ describe("tests", () => {
       fail(`Unexpected input key ${key}`);
     });
 
-    commentTempate = "Included in release {release_link}";
+    commentTempate =
+      "Included in release {release_link}. Replacements: {release_name}, {release_tag}.";
     labelTemplate = null;
     simpleMockOctokit = {
       rest: {

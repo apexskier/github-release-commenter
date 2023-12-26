@@ -81,12 +81,12 @@ describe("tests", () => {
                   html_url: "http://prior_release",
                 },
               ],
-            })
+            }),
           ),
           compareCommits: jest.fn(() =>
             Promise.resolve({
               data: { commits: [{ sha: "SHA1" }] },
-            })
+            }),
           ),
         },
       },
@@ -101,7 +101,7 @@ describe("tests", () => {
               edges: [],
             },
           },
-        })
+        }),
       ),
     };
   });
@@ -133,12 +133,12 @@ describe("tests", () => {
                   html_url: "http://prior_release",
                 },
               ],
-            })
+            }),
           ),
           compareCommits: jest.fn(() =>
             Promise.resolve({
               data: { commits: [{ sha: "SHA1" }, { sha: "SHA2" }] },
-            })
+            }),
           ),
         },
       },
@@ -211,7 +211,7 @@ describe("tests", () => {
               ],
             },
           },
-        })
+        }),
       ),
     };
 

@@ -58,7 +58,7 @@ const releaseTagTemplateRegex = /{release_tag}/g;
       .trim()
       .replace(
         releaseLinkTemplateRegex,
-        `[${releaseLabel}](${currentRelease.html_url})`
+        `[${releaseLabel}](${currentRelease.html_url})`,
       )
       .replace(releaseNameTemplateRegex, releaseLabel)
       .replace(releaseTagTemplateRegex, currentRelease.tag_name);
@@ -173,7 +173,7 @@ const releaseTagTemplateRegex = /{release_tag}/g;
             response.resource.messageHeadlineHTML,
             response.resource.messageBodyHTML,
             ...response.resource.associatedPullRequests.edges.map(
-              (pr) => pr.node.bodyHTML
+              (pr) => pr.node.bodyHTML,
             ),
           ].join(" ");
           for (const match of html.matchAll(closesMatcher)) {
@@ -197,7 +197,7 @@ const releaseTagTemplateRegex = /{release_tag}/g;
             // a skip labels is present on this PR
             if (
               skipLabels?.some((l) =>
-                associatedPR.node.labels.nodes.some(({ name }) => name === l)
+                associatedPR.node.labels.nodes.some(({ name }) => name === l),
               )
             ) {
               continue;
@@ -218,8 +218,8 @@ const releaseTagTemplateRegex = /{release_tag}/g;
               seen.add(link.subject.number);
             }
           }
-        })()
-      )
+        })(),
+      ),
     );
 
     const requests: Array<Promise<unknown>> = [];

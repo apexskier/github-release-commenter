@@ -8,6 +8,8 @@ const closesMatcher =
 const releaseLinkTemplateRegex = /{release_link}/g;
 const releaseNameTemplateRegex = /{release_name}/g;
 const releaseTagTemplateRegex = /{release_tag}/g;
+const authorTemplateRegex = /{author}/g;
+const titleTemplateRegex = /{title}/g;
 
 (async function main() {
   try {
@@ -74,7 +76,13 @@ const releaseTagTemplateRegex = /{release_tag}/g;
     const labels = parseLabels(labelTemplate);
     const skipLabels = parseLabels(skipLabelTemplate);
 
-    const linkedIssuesPrs = new Set<number>();
+    interface PR {
+      number: number;
+      title: string;
+      author: string;
+    }
+
+    const linkedIssuesPrs = new Set<PR>();
 
     await Promise.all(
       commits.map((commit) =>
@@ -91,6 +99,10 @@ const releaseTagTemplateRegex = /{release_tag}/g;
                     }
                     edges {
                       node {
+                        title
+                        author {
+                          login
+                        }
                         bodyHTML
                         number
                         labels(first: 10) {
@@ -112,6 +124,10 @@ const releaseTagTemplateRegex = /{release_tag}/g;
                               subject {
                                 ... on Issue {
                                   number
+                                  title
+                                  author {
+                                    login
+                                  }
                                 }
                               }
                             }
@@ -121,6 +137,10 @@ const releaseTagTemplateRegex = /{release_tag}/g;
                               subject {
                                 ... on Issue {
                                   number
+                                  title
+                                  author {
+                                    login
+                                  }
                                 }
                               }
                             }
@@ -141,6 +161,10 @@ const releaseTagTemplateRegex = /{release_tag}/g;
                 pageInfo: { hasNextPage: boolean };
                 edges: ReadonlyArray<{
                   node: {
+                    title: string;
+                    author: {
+                      login: string;
+                    };
                     bodyHTML: string;
                     number: number;
                     labels: {
@@ -155,6 +179,10 @@ const releaseTagTemplateRegex = /{release_tag}/g;
                         __typename: "ConnectedEvent" | "DisconnectedEvent";
                         isCrossRepository: boolean;
                         subject: {
+                          title: string;
+                          author: {
+                            login: string;
+                          };
                           number: number;
                         };
                       }>;
@@ -180,7 +208,11 @@ const releaseTagTemplateRegex = /{release_tag}/g;
           ].join(" ");
           for (const match of html.matchAll(closesMatcher)) {
             const [, num] = match;
-            linkedIssuesPrs.add(parseInt(num, 10));
+            linkedIssuesPrs.add({
+              number: parseInt(num, 10),
+              title: "N/A",
+              author: "N/A",
+            });
           }
 
           if (response.resource.associatedPullRequests.pageInfo.hasNextPage) {
@@ -204,7 +236,11 @@ const releaseTagTemplateRegex = /{release_tag}/g;
             ) {
               continue;
             }
-            linkedIssuesPrs.add(associatedPR.node.number);
+            linkedIssuesPrs.add({
+              number: associatedPR.node.number,
+              title: associatedPR.node.title,
+              author: associatedPR.node.author.login,
+            });
             // these are sorted by creation date in ascending order. The latest event for a given issue/PR is all we need
             // ignore links that aren't part of this repo
             const links = associatedPR.node.timelineItems.nodes
@@ -215,7 +251,11 @@ const releaseTagTemplateRegex = /{release_tag}/g;
                 continue;
               }
               if (link.__typename == "ConnectedEvent") {
-                linkedIssuesPrs.add(link.subject.number);
+                linkedIssuesPrs.add({
+                  number: link.subject.number,
+                  title: link.subject.title,
+                  author: link.subject.author.login,
+                });
               }
               seen.add(link.subject.number);
             }
@@ -225,15 +265,23 @@ const releaseTagTemplateRegex = /{release_tag}/g;
     );
 
     const requests: Array<Promise<unknown>> = [];
-    for (const issueNumber of linkedIssuesPrs) {
+    for (const issuePr of linkedIssuesPrs) {
+      const issueNumber = issuePr.number;
       const baseRequest = {
         ...github.context.repo,
         issue_number: issueNumber,
       };
       if (comment) {
+        // replace author and title variables
+        const finalComment = comment
+          .split(authorTemplateRegex)
+          .join(issuePr.author)
+          .split(titleTemplateRegex)
+          .join(issuePr.title);
+
         const request = {
           ...baseRequest,
-          body: comment,
+          body: finalComment,
         };
         core.info(JSON.stringify(request, null, 2));
         requests.push(octokit.rest.issues.createComment(request));

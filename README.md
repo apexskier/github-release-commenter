@@ -19,6 +19,8 @@ Override the comment posted on Issues and PRs. Set to the empty string to disabl
 - `{release_link}` - a markdown link to the release
 - `{release_name}` - the release's name
 - `{release_tag}` - the release's tag
+- `{title}` - the Issue/PR's title
+- `{author}` - the Issue/PR author's username
 
 **label-template** (optional)
 

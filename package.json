@@ -29,7 +29,7 @@
   "devDependencies": {
     "@octokit/webhooks-types": "^7.5.1",
     "@types/jest": "^27.5.0",
-    "@types/node": "^20.14.0",
+    "@types/node": "^20.14.2",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "concurrently": "^8.2.2",

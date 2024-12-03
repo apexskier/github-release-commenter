@@ -13,7 +13,7 @@ Use this action in a workflow [triggered by a release](https://docs.github.com/e
 A GitHub access token with write access to your repo's issues, such as:
 
 - (preferred) [`secrets.GITHUB_TOKEN`](https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret) with appropriately configured permissions (the example yaml below uses this)
-- A fine-grained personal access token with "Read and Write access to issues and pull requests" for the appropriate repository.
+- A fine-grained personal access token with "Read and Write access to issues and pull requests" for the appropriate repository
 - A legacy personal access token with `repo` scope
 
 **comment-template** (optional)

@@ -42,7 +42,7 @@ on:
   release:
     types: [published]
 
-permissions: # required if repository sets restricted permissions for token, see https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication#permissions-for-the-github_token$0
+permissions: # required if repository sets restricted permissions for token, see https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
   issues: write # required if active on issues
   pull-requests: write # required if active on pull requests
 

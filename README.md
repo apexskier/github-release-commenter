@@ -10,7 +10,11 @@ Use this action in a workflow [triggered by a release](https://docs.github.com/e
 
 **GITHUB_TOKEN**
 
-A GitHub personal access token with repo scope, such as [`secrets.GITHUB_TOKEN`](https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret).
+A GitHub access token with write access to your repo's issues, such as:
+
+- (preferred) [`secrets.GITHUB_TOKEN`](https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow#about-the-github_token-secret) with appropriately configured permissions (the example yaml below uses this).
+- A legacy personal access token with `repo` scope
+- A fine-grained personal access token with "Read and Write access to issues" for the appropriate repository.
 
 **comment-template** (optional)
 
@@ -38,8 +42,12 @@ on:
   release:
     types: [published]
 
+permissions:
+  issues: write
+
 jobs:
   release:
+    runs-on: ubuntu-latest
     steps:
       - uses: apexskier/github-release-commenter@v1
         with:

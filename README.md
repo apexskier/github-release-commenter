@@ -8,7 +8,7 @@ Use this action in a workflow [triggered by a release](https://docs.github.com/e
 
 ## Inputs
 
-**GITHUB_TOKEN**
+**GITHUB_TOKEN** (optional)
 
 A GitHub access token with write access to your repo's issues, such as:
 

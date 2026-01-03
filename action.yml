@@ -8,7 +8,8 @@ inputs:
     description: |
       A GitHub personal access token with repo scope, such as
       secrets.GITHUB_TOKEN.
-    required: true
+    default: ${{ github.token }}
+    required: false
   comment-template:
     description: |
       Text template for the comment string.

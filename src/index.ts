@@ -224,6 +224,10 @@ const releaseTagTemplateRegex = /{release_tag}/g;
       ),
     );
 
+    // get the authenticated user so we can scope duplicate detection to our own comments
+    const { data: authenticatedUser } =
+      await octokit.rest.users.getAuthenticated();
+
     const requests: Array<Promise<unknown>> = [];
     for (const issueNumber of linkedIssuesPrs) {
       const baseRequest = {
@@ -236,7 +240,21 @@ const releaseTagTemplateRegex = /{release_tag}/g;
           body: comment,
         };
         core.info(JSON.stringify(request, null, 2));
-        requests.push(octokit.rest.issues.createComment(request));
+        requests.push(
+          (async () => {
+            const { data: existingComments } =
+              await octokit.rest.issues.listComments(baseRequest);
+            const isDuplicate = existingComments.some(
+              (c: { user: { login: string } | null; body?: string }) =>
+                c.user?.login === authenticatedUser.login && c.body === comment,
+            );
+            if (isDuplicate) {
+              core.info(`Skipping duplicate comment on #${issueNumber}`);
+              return;
+            }
+            await octokit.rest.issues.createComment(request);
+          })(),
+        );
       }
       if (labels) {
         const request = {

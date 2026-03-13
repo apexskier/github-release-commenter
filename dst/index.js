@@ -91,13 +91,13 @@ var releaseNameTemplateRegex = /{release_name}/g;
 var releaseTagTemplateRegex = /{release_tag}/g;
 (function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var payload_1, githubToken, octokit_1, commentTemplate, labelTemplate, skipLabelTemplate, releases, _a, currentRelease_1, priorRelease, commits, releaseLabel_1, comment, parseLabels, labels, skipLabels_1, linkedIssuesPrs_2, requests, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, baseRequest, request, request, error_1;
+        var payload_1, githubToken, octokit_1, commentTemplate, labelTemplate, skipLabelTemplate, releases, _a, currentRelease_1, priorRelease, commits, releaseLabel_1, comment_1, parseLabels, labels, skipLabels_1, linkedIssuesPrs_2, authenticatedUser_1, requests, _loop_1, linkedIssuesPrs_1, linkedIssuesPrs_1_1, issueNumber, error_1;
         var e_1, _b;
         var _this = this;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
-                    _c.trys.push([0, 5, , 6]);
+                    _c.trys.push([0, 6, , 7]);
                     payload_1 = github.context
                         .payload;
                     githubToken = core.getInput("GITHUB_TOKEN");
@@ -125,7 +125,7 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                         core.info("current release has no name, will fall back to the tag name");
                     }
                     releaseLabel_1 = currentRelease_1.name || currentRelease_1.tag_name;
-                    comment = commentTemplate
+                    comment_1 = commentTemplate
                         .trim()
                         .split(releaseLinkTemplateRegex)
                         .join("[".concat(releaseLabel_1, "](").concat(currentRelease_1.html_url, ")"))
@@ -142,7 +142,7 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                     linkedIssuesPrs_2 = new Set();
                     return [4 /*yield*/, Promise.all(commits.map(function (commit) {
                             return (function () { return __awaiter(_this, void 0, void 0, function () {
-                                var query, response, html, _a, _b, match, _c, num, seen, associatedPRs, _loop_1, associatedPRs_1, associatedPRs_1_1, associatedPR;
+                                var query, response, html, _a, _b, match, _c, num, seen, associatedPRs, _loop_2, associatedPRs_1, associatedPRs_1_1, associatedPR;
                                 var e_2, _d, e_3, _e;
                                 return __generator(this, function (_f) {
                                     switch (_f.label) {
@@ -178,7 +178,7 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                                             }
                                             seen = new Set();
                                             associatedPRs = response.resource.associatedPullRequests.edges;
-                                            _loop_1 = function (associatedPR) {
+                                            _loop_2 = function (associatedPR) {
                                                 var e_4, _g;
                                                 if (associatedPR.node.timelineItems.pageInfo.hasNextPage) {
                                                     core.warning("Too many links for #".concat(associatedPR.node.number));
@@ -224,7 +224,7 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                                             try {
                                                 for (associatedPRs_1 = __values(associatedPRs), associatedPRs_1_1 = associatedPRs_1.next(); !associatedPRs_1_1.done; associatedPRs_1_1 = associatedPRs_1.next()) {
                                                     associatedPR = associatedPRs_1_1.value;
-                                                    _loop_1(associatedPR);
+                                                    _loop_2(associatedPR);
                                                 }
                                             }
                                             catch (e_3_1) { e_3 = { error: e_3_1 }; }
@@ -241,21 +241,45 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                         }))];
                 case 3:
                     _c.sent();
+                    return [4 /*yield*/, octokit_1.rest.users.getAuthenticated()];
+                case 4:
+                    authenticatedUser_1 = (_c.sent()).data;
                     requests = [];
+                    _loop_1 = function (issueNumber) {
+                        var baseRequest = __assign(__assign({}, github.context.repo), { issue_number: issueNumber });
+                        if (comment_1) {
+                            var request_1 = __assign(__assign({}, baseRequest), { body: comment_1 });
+                            core.info(JSON.stringify(request_1, null, 2));
+                            requests.push((function () { return __awaiter(_this, void 0, void 0, function () {
+                                var existingComments, isDuplicate;
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0: return [4 /*yield*/, octokit_1.rest.issues.listComments(baseRequest)];
+                                        case 1:
+                                            existingComments = (_a.sent()).data;
+                                            isDuplicate = existingComments.some(function (c) { var _a; return ((_a = c.user) === null || _a === void 0 ? void 0 : _a.login) === authenticatedUser_1.login && c.body === comment_1; });
+                                            if (isDuplicate) {
+                                                core.info("Skipping duplicate comment on #".concat(issueNumber));
+                                                return [2 /*return*/];
+                                            }
+                                            return [4 /*yield*/, octokit_1.rest.issues.createComment(request_1)];
+                                        case 2:
+                                            _a.sent();
+                                            return [2 /*return*/];
+                                    }
+                                });
+                            }); })());
+                        }
+                        if (labels) {
+                            var request = __assign(__assign({}, baseRequest), { labels: labels });
+                            core.info(JSON.stringify(request, null, 2));
+                            requests.push(octokit_1.rest.issues.addLabels(request));
+                        }
+                    };
                     try {
                         for (linkedIssuesPrs_1 = __values(linkedIssuesPrs_2), linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next(); !linkedIssuesPrs_1_1.done; linkedIssuesPrs_1_1 = linkedIssuesPrs_1.next()) {
                             issueNumber = linkedIssuesPrs_1_1.value;
-                            baseRequest = __assign(__assign({}, github.context.repo), { issue_number: issueNumber });
-                            if (comment) {
-                                request = __assign(__assign({}, baseRequest), { body: comment });
-                                core.info(JSON.stringify(request, null, 2));
-                                requests.push(octokit_1.rest.issues.createComment(request));
-                            }
-                            if (labels) {
-                                request = __assign(__assign({}, baseRequest), { labels: labels });
-                                core.info(JSON.stringify(request, null, 2));
-                                requests.push(octokit_1.rest.issues.addLabels(request));
-                            }
+                            _loop_1(issueNumber);
                         }
                     }
                     catch (e_1_1) { e_1 = { error: e_1_1 }; }
@@ -266,15 +290,15 @@ var releaseTagTemplateRegex = /{release_tag}/g;
                         finally { if (e_1) throw e_1.error; }
                     }
                     return [4 /*yield*/, Promise.all(requests)];
-                case 4:
-                    _c.sent();
-                    return [3 /*break*/, 6];
                 case 5:
+                    _c.sent();
+                    return [3 /*break*/, 7];
+                case 6:
                     error_1 = _c.sent();
                     core.error(error_1);
                     core.setFailed(error_1.message);
-                    return [3 /*break*/, 6];
-                case 6: return [2 /*return*/];
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
             }
         });
     });

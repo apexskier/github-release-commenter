@@ -63,9 +63,15 @@ describe("tests", () => {
     labelTemplate = null;
     simpleMockOctokit = {
       rest: {
+        users: {
+          getAuthenticated: jest.fn(() =>
+            Promise.resolve({ data: { login: "github-actions[bot]" } }),
+          ),
+        },
         issues: {
           createComment: jest.fn(() => Promise.resolve()),
           addLabels: jest.fn(() => Promise.resolve()),
+          listComments: jest.fn(() => Promise.resolve({ data: [] })),
         },
         repos: {
           listReleases: jest.fn(() =>
@@ -116,9 +122,15 @@ describe("tests", () => {
     mockOctokit = {
       ...simpleMockOctokit,
       rest: {
+        users: {
+          getAuthenticated: jest.fn(() =>
+            Promise.resolve({ data: { login: "github-actions[bot]" } }),
+          ),
+        },
         issues: {
           createComment: jest.fn(() => Promise.resolve()),
           addLabels: jest.fn(() => Promise.resolve()),
+          listComments: jest.fn(() => Promise.resolve({ data: [] })),
         },
         repos: {
           listReleases: jest.fn(() =>
@@ -253,6 +265,79 @@ describe("tests", () => {
 
       expect(github.getOctokit).toBeCalled();
       expect(mockOctokit.rest.issues.addLabels.mock.calls).toMatchSnapshot();
+    });
+
+    it("skips duplicate comments from the same user", async () => {
+      const expectedComment =
+        "Included in release [Release Name](http://current_release). Replacements: Release Name, current_tag_name.";
+      mockOctokit.rest.issues.listComments.mockImplementation(() =>
+        Promise.resolve({
+          data: [
+            {
+              user: { login: "github-actions[bot]" },
+              body: expectedComment,
+            },
+          ],
+        }),
+      );
+
+      jest.isolateModules(() => {
+        require("./index");
+      });
+
+      await new Promise<void>((resolve) => setImmediate(() => resolve()));
+
+      expect(github.getOctokit).toBeCalled();
+      expect(mockOctokit.rest.issues.listComments).toBeCalled();
+      expect(mockOctokit.rest.issues.createComment).not.toBeCalled();
+    });
+
+    it("posts comment when existing comment is from a different user", async () => {
+      const expectedComment =
+        "Included in release [Release Name](http://current_release). Replacements: Release Name, current_tag_name.";
+      mockOctokit.rest.issues.listComments.mockImplementation(() =>
+        Promise.resolve({
+          data: [
+            {
+              user: { login: "some-other-user" },
+              body: expectedComment,
+            },
+          ],
+        }),
+      );
+
+      jest.isolateModules(() => {
+        require("./index");
+      });
+
+      await new Promise<void>((resolve) => setImmediate(() => resolve()));
+
+      expect(github.getOctokit).toBeCalled();
+      expect(mockOctokit.rest.issues.listComments).toBeCalled();
+      expect(mockOctokit.rest.issues.createComment).toBeCalled();
+    });
+
+    it("posts comment when existing comments have different body", async () => {
+      mockOctokit.rest.issues.listComments.mockImplementation(() =>
+        Promise.resolve({
+          data: [
+            {
+              user: { login: "github-actions[bot]" },
+              body: "Some other comment",
+            },
+          ],
+        }),
+      );
+
+      jest.isolateModules(() => {
+        require("./index");
+      });
+
+      await new Promise<void>((resolve) => setImmediate(() => resolve()));
+
+      expect(github.getOctokit).toBeCalled();
+      expect(mockOctokit.rest.issues.listComments).toBeCalled();
+      expect(mockOctokit.rest.issues.createComment).toBeCalled();
     });
   });
 });

@@ -232,6 +232,75 @@ Object {
           },
         ],
       },
+      "listComments": [MockFunction] {
+        "calls": Array [
+          Array [
+            Object {
+              "issue_number": 3,
+            },
+          ],
+          Array [
+            Object {
+              "issue_number": 123,
+            },
+          ],
+          Array [
+            Object {
+              "issue_number": 7,
+            },
+          ],
+          Array [
+            Object {
+              "issue_number": 4,
+            },
+          ],
+          Array [
+            Object {
+              "issue_number": 5,
+            },
+          ],
+          Array [
+            Object {
+              "issue_number": 9,
+            },
+          ],
+          Array [
+            Object {
+              "issue_number": 2,
+            },
+          ],
+        ],
+        "results": Array [
+          Object {
+            "type": "return",
+            "value": Promise {},
+          },
+          Object {
+            "type": "return",
+            "value": Promise {},
+          },
+          Object {
+            "type": "return",
+            "value": Promise {},
+          },
+          Object {
+            "type": "return",
+            "value": Promise {},
+          },
+          Object {
+            "type": "return",
+            "value": Promise {},
+          },
+          Object {
+            "type": "return",
+            "value": Promise {},
+          },
+          Object {
+            "type": "return",
+            "value": Promise {},
+          },
+        ],
+      },
     },
     "repos": Object {
       "compareCommits": [MockFunction] {
@@ -257,6 +326,19 @@ Object {
               "per_page": 2,
             },
           ],
+        ],
+        "results": Array [
+          Object {
+            "type": "return",
+            "value": Promise {},
+          },
+        ],
+      },
+    },
+    "users": Object {
+      "getAuthenticated": [MockFunction] {
+        "calls": Array [
+          Array [],
         ],
         "results": Array [
           Object {
